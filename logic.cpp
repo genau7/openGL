@@ -6,31 +6,49 @@
 #include "logic.h"
 #include <iostream>
 
-Figure::Figure(){
-	int figureType = 4;
+Segment::Segment(int index, int color) {
+	vertices = SEGS[index];
+	this->color = color;
+}
 
+Figure::Figure(){
+	int figureType = 2; //random here
+	int color = 1; //random here
+	int verticesNum;
 	switch (figureType){
 	case 0:
-		vertices = SQUARE;
-		verticesNum = sizeof(SQUARE) / sizeof(float) / 2;
+		generateSegments(4, 123, color); //ABCD square
 		break;
 	case 1:
-		vertices = ZIGZAG;
-		verticesNum = sizeof(ZIGZAG) / sizeof(float) / 2;
+		generateSegments(4, 1234, color); //BCDE zigzag
 		break;
 	case 2:
-		vertices = STRIP;
-		verticesNum = sizeof(STRIP) / sizeof(float) / 2;
+		generateSegments(4, 246, color); //ACEG strip
 		break;
 	case 3:
-		vertices = T;
-		verticesNum = sizeof(T) / sizeof(float) / 2;
+		generateSegments(4, 234, color); //ACDE T shape
 		break;
 	case 4:
-		vertices = L;
-		verticesNum = sizeof(L) / sizeof(float) / 2;
+		generateSegments(3, 12, color); //ABC L shape
 		break;
 	}	
+}
+
+int Figure::size(){
+	return segments.size();
+}
+
+void Figure::generateSegments(int verNum, int segsIndicator,int color){
+	Segment * seg;
+	int div = pow(10, verNum-1);
+	for (int i = 0; i < verNum; i++){
+		int index = segsIndicator / div;	
+		seg = new Segment(segsIndicator/div, color);
+		segsIndicator = segsIndicator%div;
+		segments.push_back(seg);
+		div /= 10;
+	}
+
 }
 
 

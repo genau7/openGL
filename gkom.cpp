@@ -33,8 +33,11 @@ void figure() {
 	//glScalef(scale, scale, 1);
 	glColor4f(1, 1, 0, 1);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, fig->vertices);
-	glDrawArrays(GL_QUADS, 0, fig->verticesNum);
+	for (int i = 0; i < fig->size(); ++i){
+		glVertexPointer(2, GL_FLOAT, 0, fig->segments[i]->vertices);
+		glDrawArrays(GL_QUADS, 0, 4);
+	}
+	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 }
