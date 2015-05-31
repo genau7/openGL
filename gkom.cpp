@@ -5,7 +5,7 @@
 #include <iostream>
 
 int flag = true;
-Figure * fig;
+Figure * fig = NULL;
 void keyboard(unsigned char key, int x, int y)
 {
 	//if (key == 't') vertexArray = !vertexArray;
@@ -13,8 +13,7 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 void init(){
-	fig = FigFactory::newFigure();
-	Game::getInstance().addFig(fig);
+	
 }
 
 void board(){
@@ -44,10 +43,11 @@ void figures() {
 	glPopMatrix();
 }
 void display() {
-	if (fig==NULL){
+	if (Game::getInstance().timeForNewFigure){
 		fig = FigFactory::newFigure();
 		Game::getInstance().addFig(fig);
 	}
+	
 
 	glClearColor(0.0, 0.3, 0.3, 0.3);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -85,29 +85,32 @@ void arrowKeyPressed(int _key, int x, int y) {
 	case(100) ://left key	
 		//if (mBoard.isPossibleMovement(mGame.mPosX - 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
 		//mGame.mPosX--;
-		std::cout << "Pressed left key.\n";
-		fig->left();
+		fig->toSide(-1);
+		fig->printPos();
 		glutPostRedisplay();
 		break;
 	
 	case(101) ://up key	
 		//if (mBoard.isPossibleMovement(mGame.mPosX - 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
 		//	mGame.mPosX--;
+		fig->rotate();
+		fig->printPos();
 		glutPostRedisplay();
 		break;
 	case(102) ://right key
 		//if (mBoard.isPossibleMovement(mGame.mPosX + 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
 		//	mGame.mPosX++;
-		std::cout << "Pressed right key.\n";
-		fig->right();
+		fig->toSide(1);
+		fig->printPos();
+
 		glutPostRedisplay();
 		break;
 	case(103) ://down key
 
 		//if (mBoard.isPossibleMovement(mGame.mPosX, mGame.mPosY + 1, mGame.tetroType, mGame.mRotation))
 		//mGame.mPosY++;
-		std::cout << "Pressed down key.\n";
 		fig->down();
+		fig->printPos();
 		glutPostRedisplay();
 		break;
 	}

@@ -10,48 +10,50 @@ Segment::Segment(int index, int color) {
 	vertices = SEGS[index];
 	this->color = color;
 	this->tile = tileLUT[index];
+	if (index == 0)
+		name = 'A';
+	else if (index == 1)
+		name = 'B';
+	else if (index == 2)
+		name = 'C';
+	else if (index == 3)
+		name = 'D';
+	else if (index == 4)
+		name = 'E';
+	else if (index == 5)
+		name = 'F';
+	else if (index == 6)
+		name = 'G';
+	
 }
 
-bool Segment::down(){
-	//TODO check collisions
-	if (tile + 1 < 190){
-		tile = tile + boardWidthTiles;
-		return true;
-	}
-	return false;
+void Segment::down(){
+	tile = tile + boardWidthTiles;		
 }
 
-bool Segment::left(){
-	//TODO check collisions
-	if (tile / boardWidthTiles == (tile - 1) / boardWidthTiles){
-		tile = tile - 1;
-		return true;
-	}
-	return false;
+void Segment::toSide(int increment){
+	tile += increment;
 }
-
-bool Segment::right(){
-	//TODO check collisions
-	if (tile / boardWidthTiles == (tile + 1) / boardWidthTiles){
-		tile = tile + 1;
-		return true;
-	}
-	return false;
-}
-
-
 
 //-------------------------------------Figure--------------------------------
 
 Figure::Figure(){
 	dx = dy = 0; 
-	y = x = 0.0f;
-	angle = 10.0f;
+	angle = 0.0f;
 }
 int Figure::size(){
 	return segments.size();
 }
 
+void Figure::printPos(){
+	for (int i = 0; i < size(); ++i){
+		Segment* seg = segments[i];
+		int row = seg->tile / boardWidthTiles;
+		int col = seg->tile%boardWidthTiles;
+		std::cout << seg->name << "(" << seg->tile / boardWidthTiles << "," << seg->tile%boardWidthTiles << "), ";
+	}
+	std::cout << std::endl;
+}
 void Figure::generateSegments(int verNum, int segsIndicator,int color){
 	Segment * seg;
 	int div = pow(10, verNum-1);
@@ -65,74 +67,107 @@ void Figure::generateSegments(int verNum, int segsIndicator,int color){
 
 }
 
-bool Figure::down(){
-	bool noCollision = true;
+
+bool Figure::willCollide(int increment){
 	for (int i = 0; i < size(); ++i){
-		Segment* seg = segments[i];
-		noCollision = noCollision && seg->down();
+		int tile = segments[i]->tile;
+		bool collsision = Game::getInstance().isTileTaken(tile + increment);
+		if (Game::getInstance().isTileTaken(tile+increment))
+			return true;
 	}
-	if (noCollision){
-		dy += 1;
-		y = -0.1f*dy;
-	}
-	return noCollision;
-	//dy+=1;
+	return false;
 }
 
-bool Figure::left(){
-	bool noCollision = true;
+bool Figure::willBeOutOfBounds(int increment){
 	for (int i = 0; i < size(); ++i){
-		Segment* seg = segments[i];
-		noCollision = noCollision && seg->left();
-	}
+		int tile = segments[i]->tile;
+		//for moving left or right
+		if (increment < boardWidthTiles)
+			if (tile / boardWidthTiles != (tile + increment) / boardWidthTiles)
+				return true;
 
-	if (noCollision){
-		dx -= 1;
-		x = 0.1f*dx;		
+		//for moving down
+		if (tile + increment >= 200)
+			return true;
 	}
-
-	return noCollision;
+	return false;
 }
 
-bool Figure::right(){
-	bool noCollision = true;
+void Figure::stopMoving(){
+	Game::getInstance().timeForNewFigure = true;
 	for (int i = 0; i < size(); ++i){
-		Segment* seg = segments[i];
-		noCollision = noCollision && seg->right();
+		int tile = segments[i]->tile;
+		Game::getInstance().occupyTile(tile);
 	}
-
-	if (noCollision){
-		dx += 1;
-		x = dx*0.1f;
-	}
-
-	return noCollision;
 }
+void Figure::down(){
+	if (willCollide(boardWidthTiles) || willBeOutOfBounds(boardWidthTiles)){
+		stopMoving();	
+		return;
+	}
+
+	for (int i = 0; i < size(); ++i)
+		segments[i]->down();
+	dy -= 0.1f;
+	
+}
+
+void Figure::toSide(int increment){
+	if (willBeOutOfBounds(increment))
+		return;
+	if (willCollide(increment)){
+		stopMoving();
+		return;
+	}
+
+	for (int i = 0; i < size(); ++i)
+		segments[i]->toSide(increment);
+	dx += increment*0.1f;
+}
+
+
+/*
+void Figure::rotate(){
+	bool noCollision = true;
+//	for (int i = 0; i < size(); ++i){
+//		Segment* seg = segments[i];
+//		noCollision = noCollision && seg->right();
+//	}
+	if (noCollision){
+		angle=(angle+90)%360;
+		//x = dx*0.1f;
+	}
+}*/
+
+
 
 void Figure::draw(){
 	glPushMatrix();
-	//glTranslatef(-0.33, 0, 0);
-	//x = -0.5;
-	glTranslatef(x, y, 0);
+	glTranslatef(dx, dy, 0);
 	glTranslatef(-0.5f, 1.0f, 0);
-	//glRotatef(angle, 0, 0, 1);
-	//glScalef(1, 2, 3);
+	glRotatef(angle, 0, 0, 1);
+	
 	glColor4f(1, 1, 0, 1);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	for (int i = 0; i < size(); ++i){
 		glVertexPointer(2, GL_FLOAT, 0, segments[i]->vertices);
 		glDrawArrays(GL_QUADS, 0, 4);
+
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 }
 
+void Figure::rotate(){
+
+}
+
 //-------------------------------------------------Fig Factory------------------------
 
 Figure* FigFactory::newFigure(){
-	int figureType = 3; //random here
+	int figureType = 2; //random here
 	int color = 1; //random here
 	int verticesNum;
 	switch (figureType){
@@ -158,22 +193,77 @@ FigSquare::FigSquare(int color){
 	generateSegments(4, 123, color);
 }
 
+void FigSquare::rotate(){
+
+}
+
 FigS::FigS(int color){
 	generateSegments(4, 1234, color);
+}
+
+void FigS::rotate(){
+
 }
 
 FigStrip::FigStrip(int color){
 	generateSegments(4, 246, color);
 }
 
+void FigStrip::rotate(){
+	int adjust;
+	if (angle == 0){
+		xDirRot = 1;
+		yDirRot = -10;
+		adjust = -1;
+	}
+	else if (angle == 90){
+		xDirRot = -1;
+		yDirRot = -10;
+		adjust = boardWidthTiles;
+	}
+	else if (angle == 180){
+		xDirRot = -1;
+		yDirRot = 10;
+		adjust =1;
+	}
+	else if (angle == 270){
+		xDirRot = 1;
+		yDirRot = 10;
+		adjust = -boardWidthTiles;
+	}
+
+
+	//basic rotate
+	for (int i = 1; i <= size(); ++i){
+		int & tile = segments[i-1]->tile;
+		tile = tile + xDirRot*i + yDirRot*i+adjust;
+	}
+	angle = (angle + 90) % 360;
+	
+
+	/*	bool collsision = Game::getInstance().isTileTaken(tile + increment);
+		if (Game::getInstance().isTileTaken(tile + increment))
+			return true;*/
+	
+
+
+}
+
 FigT::FigT(int color){
 	generateSegments(4, 234, color);
+}
+
+void FigT::rotate(){
+
 }
 
 FigL::FigL(int color){
 	generateSegments(3, 12, color);
 }
 
+void FigL::rotate(){
+
+}
 
 
 //----------------------Game-----------------------
@@ -183,7 +273,17 @@ Game& Game::getInstance(){
 	return game;
 }
 
+Game::Game(){
+	gameState = 1; 
+	timeForNewFigure = true;
+	for (int i = 0; i < boardHeightTiles; ++i){
+		for (int j = 0; j < boardWidthTiles; ++j)
+			tiles[i][j] = 0;
+	}
+}
+
 void Game::drawFigures(){
+	bool noCollision = true;
 	for (int i = 0; i < figures.size(); ++i){
 		Figure * fig = figures[i];
 		fig->draw();
@@ -192,33 +292,23 @@ void Game::drawFigures(){
 
 void Game::addFig(Figure* fig){
 	figures.push_back(fig);
+	timeForNewFigure = false;
+}
+
+bool Game::isTileTaken(int tileNum){
+	int row = tileNum / boardWidthTiles;
+	int col = tileNum%boardWidthTiles;
+	int val = tiles[row][col];//
+	bool ret = (val == 1);//
+	return tiles[row][col]==1;
+}
+
+void Game::occupyTile(int tileNum){
+	int row = tileNum / boardWidthTiles;
+	int col = tileNum%boardWidthTiles;
+	tiles[row][col] = 1;
 }
 /*
-
-Figure::Figure(){
-int figureType = 3; //random here
-int color = 1; //random here
-int verticesNum;
-switch (figureType){
-case 0:
-generateSegments(4, 123, color); //ABCD square
-break;
-case 1:
-generateSegments(4, 1234, color); //BCDE zigzag
-break;
-case 2:
-generateSegments(4, 246, color); //ACEG strip
-break;
-case 3:
-generateSegments(4, 234, color); //ACDE T shape
-break;
-case 4:
-generateSegments(3, 12, color); //ABC L shape
-break;
-}
-}
-
-
 const int FigStripe::rVertices[2][4] = { { 0, 1, 1, 0 }, { 0, 0, 4, 4 } };
 
 Figure* FigFactory::createFig(int type, int color){

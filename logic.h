@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include<list>
 #include<deque>
 #include <math.h>  
 #include "GLUT.H"
@@ -10,37 +11,46 @@
 
 const int boardWidthTiles = 10;
 const int boardHeightTiles = 20;
+const int COLLISION = -1;
+const int OUT_OF_BOUNDS = 0;
+const int OK = 1;
 
 
 struct Segment {
 	Segment(int index, int color);
-	bool down();
-	bool left();
-	bool right();
+	void down();
+	void toSide(int increment);
 	int color;//
 	int tile;
 	const float * vertices;
+	char name;
 };
 
 class Figure {
 public:
 	Figure();
 	int size();
-	bool down();
-	bool left();
-	bool right();
-	bool rotate();
+	void down();
+	void toSide(int increment);
+	void left();
+	void right();
+	virtual void rotate();
 	void draw();
+	bool willCollide(int increment);
+	bool willBeOutOfBounds(int increment);
+	void stopMoving();
+	void printPos();
 
-	int dx;
-	int dy;
-	float x, y, angle;
+	float dx, dy;
+	int angle;
 	int color;
 	std::vector<Segment*> segments;
-	int * occupiedTiles;
+	//int * occupiedTiles;
 
 protected:
 	void generateSegments(int verNum, int segsIndicator, int color);
+	int xDirRot;
+	int yDirRot;
 };
 
 
@@ -49,26 +59,32 @@ protected:
 class FigSquare : public Figure{
 public:
 	FigSquare(int color);
+	virtual void rotate();
 };
 
 class FigS : public Figure{
 public:
 	FigS(int color);
+	virtual void rotate();
 };
 
 class FigStrip : public Figure{
 public:
 	FigStrip(int color);
+	virtual void rotate();
+	
 };
 
 class FigT : public Figure{
 public:
 	FigT(int color);
+	virtual void rotate();
 };
 
 class FigL : public Figure{
 public:
 	FigL(int color);
+	virtual void rotate();
 };
 
 
@@ -84,12 +100,20 @@ public:
 	static Game& getInstance();
 	void drawFigures();
 	void addFig(Figure* fig);
+	bool isTileTaken(int tileNum);
+	bool timeForNewFigure;
+	void occupyTile(int tileNum);
+	
+	
+
+	int tiles[boardHeightTiles][boardWidthTiles];
+	std::list<int>takenTiles;
 	//void start();
 
 	Game(Game const&) = delete;
 	void operator=(Game const&) = delete;
 private:
-	Game(){ gameState = 1; }
+	Game();
 
 	std::deque<Figure*> figures;
 
@@ -105,8 +129,8 @@ const float SEGS[7][8] = {
 	{ 0.0f, -0.2f, 0.1f, -0.2f, 0.1f, -0.1f, 0.0f, -0.1f }, //C
 	{ 0.1f, -0.2f, 0.2f, -0.2f, 0.2f, -0.1f, 0.1f, -0.1f }, //D
 	{ 0.0f, -0.3f, 0.1f, -0.3f, 0.1f, -0.2f, 0.0f, -0.2f }, //E
-	{ 0.1f, -0.3f, 0.2f, -0.3f, 0.2f, -0.2f, 0.1f, -0.2f }, //E
-	{ 0.0f, -0.4f, 0.1f, -0.4f, 0.1f, -0.3f, 0.0f, -0.3f } //F
+	{ 0.1f, -0.3f, 0.2f, -0.3f, 0.2f, -0.2f, 0.1f, -0.2f }, //F
+	{ 0.0f, -0.4f, 0.1f, -0.4f, 0.1f, -0.3f, 0.0f, -0.3f } //G
 };
 
 //nums of tiles for each segment
