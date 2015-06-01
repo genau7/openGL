@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logic.h" />
+    <ClInclude Include="Segment.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FD6EC771-1B90-4F54-81AA-0199A9E43108}</ProjectGuid>

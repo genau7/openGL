@@ -8,6 +8,7 @@
 #include <math.h>  
 #include "GLUT.H"
 #include <gl\GL.h>
+#include "Segment.h"
 
 const int boardWidthTiles = 10;
 const int boardHeightTiles = 20;
@@ -20,6 +21,7 @@ struct Segment {
 	Segment(int index, int color);
 	void down();
 	void toSide(int increment);
+	void getName(int index);
 	int color;//
 	int tile;
 	const float * vertices;
@@ -48,7 +50,7 @@ public:
 	//int * occupiedTiles;
 
 protected:
-	void generateSegments(int verNum, int segsIndicator, int color);
+	void generateSegments(int segsIndicator, int color);
 	int xDirRot;
 	int yDirRot;
 };
@@ -123,19 +125,8 @@ private:
 
 
 
-const float SEGS[7][8] = { 
-	{ 0.0f, -0.1f, 0.1f, -0.1f, 0.1f, 0.0f, 0.0f, 0.0f }, //A
-	{ 0.1f, -0.1f, 0.2f, -0.1f, 0.2f, 0.0f, 0.1f, 0.0f }, //B
-	{ 0.0f, -0.2f, 0.1f, -0.2f, 0.1f, -0.1f, 0.0f, -0.1f }, //C
-	{ 0.1f, -0.2f, 0.2f, -0.2f, 0.2f, -0.1f, 0.1f, -0.1f }, //D
-	{ 0.0f, -0.3f, 0.1f, -0.3f, 0.1f, -0.2f, 0.0f, -0.2f }, //E
-	{ 0.1f, -0.3f, 0.2f, -0.3f, 0.2f, -0.2f, 0.1f, -0.2f }, //F
-	{ 0.0f, -0.4f, 0.1f, -0.4f, 0.1f, -0.3f, 0.0f, -0.3f } //G
-};
 
-//nums of tiles for each segment
-//						A  B   C   D  E   F   G
-const int tileLUT[] = { 0, 1, 10, 11, 20, 21, 30 };
+
 
 const float BOARD[]{
 	-0.5f, 1,

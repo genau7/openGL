@@ -6,10 +6,7 @@
 #include "logic.h"
 #include <iostream>
 
-Segment::Segment(int index, int color) {
-	vertices = SEGS[index];
-	this->color = color;
-	this->tile = tileLUT[index];
+void Segment::getName(int index){
 	if (index == 0)
 		name = 'A';
 	else if (index == 1)
@@ -24,6 +21,23 @@ Segment::Segment(int index, int color) {
 		name = 'F';
 	else if (index == 6)
 		name = 'G';
+	else if (index == 7)
+		name = 'H';
+	else if (index == 8)
+		name = 'I';
+	else if (index == 9)
+		name = 'J';
+	else if (index == 10)
+		name = 'K';
+	else
+		name = 'X';
+}
+
+Segment::Segment(int index, int color) {
+	vertices = SEGS[index];
+	this->color = color;
+	this->tile = tileLUT[index];
+	getName(index);
 	
 }
 
@@ -54,10 +68,11 @@ void Figure::printPos(){
 	}
 	std::cout << std::endl;
 }
-void Figure::generateSegments(int verNum, int segsIndicator,int color){
+void Figure::generateSegments(int segsIndicator,int color){
 	Segment * seg;
-	int div = pow(10, verNum-1);
-	for (int i = 0; i < verNum; i++){
+	int segNum = 4;
+	int div = 1000;
+	for (int i = 0; i < segNum; i++){
 		int index = segsIndicator / div;	
 		seg = new Segment(index, color);
 		segsIndicator = segsIndicator%div;
@@ -172,25 +187,25 @@ Figure* FigFactory::newFigure(){
 	int verticesNum;
 	switch (figureType){
 	case 0:
-		return new FigSquare(color); //ABCD square
+		return new FigSquare(color); 
 		break;
 	case 1:
-		return new FigS(color); //BCDE zigzag
+		return new FigS(color); 
 		break;
 	case 2:
-		return new FigStrip(color); //ACEG strip
+		return new FigStrip(color);
 		break;
 	case 3:
-		return new FigT(color); //ACDE T shape
+		return new FigT(color); 
 		break;
 	case 4:
-		return new FigL(color); //ABC L shape
+		return new FigL(color); 
 		break;
 	}
 }
 
 FigSquare::FigSquare(int color){
-	generateSegments(4, 123, color);
+	generateSegments(134, color);
 }
 
 void FigSquare::rotate(){
@@ -198,15 +213,15 @@ void FigSquare::rotate(){
 }
 
 FigS::FigS(int color){
-	generateSegments(4, 1234, color);
+	generateSegments(1234, color);
 }
 
 void FigS::rotate(){
-
+	angle = (angle + 90) % 360;
 }
 
 FigStrip::FigStrip(int color){
-	generateSegments(4, 246, color);
+	generateSegments(379, color);
 }
 
 void FigStrip::rotate(){
@@ -250,7 +265,7 @@ void FigStrip::rotate(){
 }
 
 FigT::FigT(int color){
-	generateSegments(4, 234, color);
+	generateSegments(124, color);
 }
 
 void FigT::rotate(){
@@ -258,7 +273,7 @@ void FigT::rotate(){
 }
 
 FigL::FigL(int color){
-	generateSegments(3, 12, color);
+	generateSegments(123, color);
 }
 
 void FigL::rotate(){
