@@ -19,8 +19,9 @@ const int OK = 1;
 
 struct Segment {
 	Segment(int index, int color);
-	void down();
-	void toSide(int increment);
+	void down();//
+	void toSide(int increment);//
+	void move(int increment);
 	void getName(int index);
 	int color;//
 	int tile;
@@ -44,13 +45,15 @@ public:
 	void printPos();
 
 	float dx, dy;
+	int dTile;
 	int angle;
 	int color;
-	std::vector<Segment*> segments;
+	std::deque<Segment*> segments;
 	//int * occupiedTiles;
 
 protected:
 	void generateSegments(int segsIndicator, int color);
+	void rotateSegments(int segsCode);
 	int xDirRot;
 	int yDirRot;
 };

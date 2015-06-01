@@ -41,8 +41,12 @@ Segment::Segment(int index, int color) {
 	
 }
 
+void Segment::move(int increment){
+	tile += increment;
+}
+
 void Segment::down(){
-	tile = tile + boardWidthTiles;		
+	tile = tile - boardWidthTiles;		
 }
 
 void Segment::toSide(int increment){
@@ -54,6 +58,7 @@ void Segment::toSide(int increment){
 Figure::Figure(){
 	dx = dy = 0; 
 	angle = 0.0f;
+	dTile = 0;
 }
 int Figure::size(){
 	return segments.size();
@@ -68,20 +73,34 @@ void Figure::printPos(){
 	}
 	std::cout << std::endl;
 }
-void Figure::generateSegments(int segsIndicator,int color){
+void Figure::generateSegments(int segsIndicator, int color){
 	Segment * seg;
 	int segNum = 4;
 	int div = 1000;
 	for (int i = 0; i < segNum; i++){
-		int index = segsIndicator / div;	
+		int index = segsIndicator / div;
 		seg = new Segment(index, color);
 		segsIndicator = segsIndicator%div;
 		segments.push_back(seg);
 		div /= 10;
 	}
-
 }
 
+void Figure::rotateSegments(int segsCode){
+	int div = 1000;
+	for (int i = 0; i < size(); i++){
+		int index = segsCode / div;
+		Segment * seg = segments[i];
+		int color = seg->color;
+		segments.pop_front();
+		//delete seg;
+		seg = new Segment(index, color);
+		seg->move(dTile);
+		segsCode = segsCode%div;
+		segments.push_back(seg);
+		div /= 10;
+	}
+}
 
 bool Figure::willCollide(int increment){
 	for (int i = 0; i < size(); ++i){
@@ -97,12 +116,12 @@ bool Figure::willBeOutOfBounds(int increment){
 	for (int i = 0; i < size(); ++i){
 		int tile = segments[i]->tile;
 		//for moving left or right
-		if (increment < boardWidthTiles)
+		if (increment >= -1)
 			if (tile / boardWidthTiles != (tile + increment) / boardWidthTiles)
 				return true;
 
 		//for moving down
-		if (tile + increment >= 200)
+		if (tile + increment <0)
 			return true;
 	}
 	return false;
@@ -116,13 +135,14 @@ void Figure::stopMoving(){
 	}
 }
 void Figure::down(){
-	if (willCollide(boardWidthTiles) || willBeOutOfBounds(boardWidthTiles)){
+	if (willCollide(-boardWidthTiles) || willBeOutOfBounds(-boardWidthTiles)){
 		stopMoving();	
 		return;
 	}
 
 	for (int i = 0; i < size(); ++i)
-		segments[i]->down();
+		segments[i]->move(-boardWidthTiles);
+	dTile += -boardWidthTiles;
 	dy -= 0.1f;
 	
 }
@@ -136,10 +156,11 @@ void Figure::toSide(int increment){
 	}
 
 	for (int i = 0; i < size(); ++i)
-		segments[i]->toSide(increment);
+		segments[i]->move(increment);
+	
+	dTile += increment;
 	dx += increment*0.1f;
 }
-
 
 /*
 void Figure::rotate(){
@@ -154,13 +175,11 @@ void Figure::rotate(){
 	}
 }*/
 
-
-
 void Figure::draw(){
 	glPushMatrix();
 	glTranslatef(dx, dy, 0);
 	glTranslatef(-0.5f, 1.0f, 0);
-	glRotatef(angle, 0, 0, 1);
+	//glRotatef(angle, 0, 0, 1);
 	
 	glColor4f(1, 1, 0, 1);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -182,7 +201,7 @@ void Figure::rotate(){
 //-------------------------------------------------Fig Factory------------------------
 
 Figure* FigFactory::newFigure(){
-	int figureType = 2; //random here
+	int figureType = 1; //random here
 	int color = 1; //random here
 	int verticesNum;
 	switch (figureType){
@@ -209,7 +228,15 @@ FigSquare::FigSquare(int color){
 }
 
 void FigSquare::rotate(){
-
+	if (angle == 0)
+		rotateSegments(4013);
+	else if (angle == 90)
+		rotateSegments(3401);
+	else if (angle == 180)
+		rotateSegments(1340);
+	else if (angle == 270)
+		rotateSegments(134);
+	angle = (angle + 90) % 360;
 }
 
 FigS::FigS(int color){
@@ -217,6 +244,14 @@ FigS::FigS(int color){
 }
 
 void FigS::rotate(){
+	if (angle == 0)
+		rotateSegments(348);
+	else if (angle == 90)
+		rotateSegments(4321);
+	else if (angle == 180)
+		rotateSegments(843);
+	else if (angle == 270)
+		rotateSegments(1234);
 	angle = (angle + 90) % 360;
 }
 
@@ -225,43 +260,20 @@ FigStrip::FigStrip(int color){
 }
 
 void FigStrip::rotate(){
-	int adjust;
-	if (angle == 0){
-		xDirRot = 1;
-		yDirRot = -10;
-		adjust = -1;
-	}
-	else if (angle == 90){
-		xDirRot = -1;
-		yDirRot = -10;
-		adjust = boardWidthTiles;
-	}
-	else if (angle == 180){
-		xDirRot = -1;
-		yDirRot = 10;
-		adjust =1;
-	}
-	else if (angle == 270){
-		xDirRot = 1;
-		yDirRot = 10;
-		adjust = -boardWidthTiles;
-	}
-
-
-	//basic rotate
-	for (int i = 1; i <= size(); ++i){
-		int & tile = segments[i-1]->tile;
-		tile = tile + xDirRot*i + yDirRot*i+adjust;
-	}
+	if (angle == 0)
+		rotateSegments(3456);
+	else if (angle == 90)
+		rotateSegments(9730);
+	else if (angle == 180)
+		rotateSegments(6543);
+	else if (angle == 270)
+		rotateSegments(379);
 	angle = (angle + 90) % 360;
-	
 
 	/*	bool collsision = Game::getInstance().isTileTaken(tile + increment);
 		if (Game::getInstance().isTileTaken(tile + increment))
 			return true;*/
 	
-
-
 }
 
 FigT::FigT(int color){
@@ -269,15 +281,32 @@ FigT::FigT(int color){
 }
 
 void FigT::rotate(){
-
+	if (angle == 0)
+		rotateSegments(1348);
+	else if (angle == 90)
+		rotateSegments(1345);
+	else if (angle == 180)
+		rotateSegments(347);
+	else if (angle == 270)
+		rotateSegments(124);
+	angle = (angle + 90) % 360;
 }
 
 FigL::FigL(int color){
 	generateSegments(123, color);
+	//angle
 }
 
 void FigL::rotate(){
-
+	if (angle == 0)
+		rotateSegments(148);
+	else if (angle == 90)
+		rotateSegments(345);
+	else if (angle == 180)
+		rotateSegments(378);
+	else if (angle == 270)
+		rotateSegments(123);
+	angle = (angle + 90) % 360;
 }
 
 
