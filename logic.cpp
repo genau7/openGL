@@ -234,6 +234,7 @@ void Figure::draw(){
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
+
 }
 
 
@@ -245,19 +246,19 @@ Figure* FigFactory::newFigure(){
 	int verticesNum;
 	switch (figureType){
 	case 0:
-		return new FigSquare; 
+		return Game::getInstance().currentFig=new FigSquare; 
 		break;
 	case 1:
-		return new FigS; 
+		return  Game::getInstance().currentFig = new FigS;
 		break;
 	case 2:
-		return new FigStrip;
+		return  Game::getInstance().currentFig = new FigStrip;
 		break;
 	case 3:
-		return new FigT; 
+		return  Game::getInstance().currentFig = new FigT;
 		break;
 	case 4:
-		return new FigL; 
+		return  Game::getInstance().currentFig = new FigL;
 		break;
 	}
 }
@@ -376,6 +377,13 @@ void Game::drawFigures(){
 		Figure * fig = figures[i];
 		fig->draw();
 	}
+	//increase time
+	if (++time > cycle)
+		time = 0;
+}
+
+bool Game::timeToMove(){
+	return time == cycle;
 }
 
 void Game::addFig(Figure* fig){

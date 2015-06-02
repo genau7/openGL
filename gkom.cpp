@@ -31,7 +31,6 @@ void display() {
 		fig = FigFactory::newFigure();
 		Game::getInstance().addFig(fig);
 	}
-	
 
 	glClearColor(0.0, 0.3, 0.3, 0.3);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -42,6 +41,10 @@ void display() {
 	
 	glFlush();//
 	glutSwapBuffers();
+	//std::cout << "\ttime to move\n";
+	if (Game::getInstance().timeToMove())
+		//std::cout << "\ttime to move\n";
+		fig->down();
 }
 
 void reshape(GLsizei w, GLsizei h) {
@@ -111,6 +114,7 @@ int main(int argc, char **argv)
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(arrowKeyPressed);
 	glutReshapeFunc(reshape);
+	glutIdleFunc(display);
 	init();
 	glutMainLoop();
 	return 0;

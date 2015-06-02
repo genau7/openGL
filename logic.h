@@ -107,8 +107,12 @@ public:
 	bool isTileTaken(int tileNum);
 	bool timeForNewFigure;
 	void occupyTile(int tileNum);
+	bool timeToMove();
+	void refreshLines();
 	int time;
-	const int cycle = 360;
+	const int cycle = 200;
+	Figure * currentFig;
+	Figure* nextFig;
 	
 	
 
