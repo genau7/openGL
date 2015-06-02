@@ -35,12 +35,15 @@ public:
 	int size();
 	void down();
 	void toSide(int increment);
-	void left();
-	void right();
-	virtual void rotate();
+	//void left();
+	//void right();
+	void move(int increment);
+	virtual void rotate()=0;
+	void fixRotation();
 	void draw();
 	bool willCollide(int increment);
-	bool willBeOutOfBounds(int increment);
+	bool outOfBoundsX(int increment);
+	bool outOfBoundsY(int increment);
 	void stopMoving();
 	void printPos();
 

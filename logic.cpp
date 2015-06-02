@@ -71,7 +71,7 @@ void Figure::printPos(){
 		int col = seg->tile%boardWidthTiles;
 		std::cout << seg->name << "(" << seg->tile / boardWidthTiles << "," << seg->tile%boardWidthTiles << "), ";
 	}
-	std::cout << std::endl;
+	std::cout << "dTile="<<dTile<<"  dx="<<dx<<", dy="<<dy<<std::endl;
 }
 void Figure::generateSegments(int segsIndicator, int color){
 	Segment * seg;
@@ -102,6 +102,21 @@ void Figure::rotateSegments(int segsCode){
 	}
 }
 
+void Figure::fixRotation(){
+	//move to left if out of bounds on right
+	if (dTile%boardWidthTiles!=0)
+		while (outOfBoundsX(0))
+			move(-1);
+	
+	//move up if out of bounds on the bottom
+	while (outOfBoundsY(0))
+		move(boardWidthTiles);
+	
+	//while (outOfBoundsY(0))
+		//toSide(boardWidthTiles);
+	
+}
+
 bool Figure::willCollide(int increment){
 	for (int i = 0; i < size(); ++i){
 		int tile = segments[i]->tile;
@@ -111,17 +126,23 @@ bool Figure::willCollide(int increment){
 	}
 	return false;
 }
-
-bool Figure::willBeOutOfBounds(int increment){
+bool Figure::outOfBoundsX(int increment){
+	int row = segments[0]->tile / boardWidthTiles;
 	for (int i = 0; i < size(); ++i){
 		int tile = segments[i]->tile;
-		//for moving left or right
-		if (increment >= -1)
-			if (tile / boardWidthTiles != (tile + increment) / boardWidthTiles)
+		if (increment == 0)
+			if (tile % 10 == 0)
 				return true;
+		if (tile / boardWidthTiles != (tile + increment) / boardWidthTiles)
+			return true;
+	}
+	return false;
+}
 
-		//for moving down
-		if (tile + increment <0)
+bool Figure::outOfBoundsY(int increment){
+	for (int i = 0; i < size(); ++i){
+		int tile = segments[i]->tile;
+		if (tile + increment <0) //or >190
 			return true;
 	}
 	return false;
@@ -134,46 +155,41 @@ void Figure::stopMoving(){
 		Game::getInstance().occupyTile(tile);
 	}
 }
+
+void Figure::move(int increment){
+	for (int i = 0; i < size(); ++i)
+		segments[i]->move(increment);
+	dTile += increment;
+	int row = (initTile + dTile) / boardWidthTiles;
+	int col = (initTile + dTile) % boardWidthTiles;
+	dx = col*0.1f;
+
+	//19 is tehe index of the upper most lineon board
+	dy = (19-row)*-0.1f;
+}
 void Figure::down(){
-	if (willCollide(-boardWidthTiles) || willBeOutOfBounds(-boardWidthTiles)){
+	if (willCollide(-boardWidthTiles) || outOfBoundsY(-boardWidthTiles)){
 		stopMoving();	
 		return;
 	}
+	move(-boardWidthTiles);
 
-	for (int i = 0; i < size(); ++i)
-		segments[i]->move(-boardWidthTiles);
-	dTile += -boardWidthTiles;
-	dy -= 0.1f;
-	
+	//dTile += -boardWidthTiles;
+	//dy -= 0.1f;
 }
 
 void Figure::toSide(int increment){
-	if (willBeOutOfBounds(increment))
+	if (outOfBoundsX(increment))
 		return;
 	if (willCollide(increment)){
 		stopMoving();
 		return;
 	}
+	move(increment);
 
-	for (int i = 0; i < size(); ++i)
-		segments[i]->move(increment);
-	
-	dTile += increment;
-	dx += increment*0.1f;
+	//dTile += increment;
+	//dx += increment*0.1f;
 }
-
-/*
-void Figure::rotate(){
-	bool noCollision = true;
-//	for (int i = 0; i < size(); ++i){
-//		Segment* seg = segments[i];
-//		noCollision = noCollision && seg->right();
-//	}
-	if (noCollision){
-		angle=(angle+90)%360;
-		//x = dx*0.1f;
-	}
-}*/
 
 void Figure::draw(){
 	glPushMatrix();
@@ -194,14 +210,12 @@ void Figure::draw(){
 	glPopMatrix();
 }
 
-void Figure::rotate(){
 
-}
 
 //-------------------------------------------------Fig Factory------------------------
 
 Figure* FigFactory::newFigure(){
-	int figureType = 1; //random here
+	int figureType = 2; //random here
 	int color = 1; //random here
 	int verticesNum;
 	switch (figureType){
@@ -253,6 +267,7 @@ void FigS::rotate(){
 	else if (angle == 270)
 		rotateSegments(1234);
 	angle = (angle + 90) % 360;
+	fixRotation();
 }
 
 FigStrip::FigStrip(int color){
@@ -269,6 +284,7 @@ void FigStrip::rotate(){
 	else if (angle == 270)
 		rotateSegments(379);
 	angle = (angle + 90) % 360;
+	fixRotation();
 
 	/*	bool collsision = Game::getInstance().isTileTaken(tile + increment);
 		if (Game::getInstance().isTileTaken(tile + increment))
@@ -290,6 +306,7 @@ void FigT::rotate(){
 	else if (angle == 270)
 		rotateSegments(124);
 	angle = (angle + 90) % 360;
+	fixRotation();
 }
 
 FigL::FigL(int color){
@@ -307,6 +324,7 @@ void FigL::rotate(){
 	else if (angle == 270)
 		rotateSegments(123);
 	angle = (angle + 90) % 360;
+	fixRotation();
 }
 
 
