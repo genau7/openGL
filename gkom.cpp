@@ -18,9 +18,7 @@ void init(){
 
 void board(){
 	glPushMatrix();
-		//glTranslatef(-0.4, 0, 0);
-		//glScalef(scale, scale, 1);
-		glColor4f(1, 0, 0, 1);
+		glColor4f(0, 0, 0, 0);
 		glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(2, GL_FLOAT, 0, BOARD);
 			glDrawArrays(GL_QUADS, 0, 4);
@@ -28,20 +26,6 @@ void board(){
 	glPopMatrix();
 }
 
-void figures() {
-	glPushMatrix();
-	//glTranslatef(-0.33, 0, 0);
-	//glScalef(scale, scale, 1);
-	glColor4f(1, 1, 0, 1);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	for (int i = 0; i < fig->size(); ++i){
-		glVertexPointer(2, GL_FLOAT, 0, fig->segments[i]->vertices);
-		glDrawArrays(GL_QUADS, 0, 4);
-	}
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glPopMatrix();
-}
 void display() {
 	if (Game::getInstance().timeForNewFigure){
 		fig = FigFactory::newFigure();
@@ -55,7 +39,6 @@ void display() {
 	glLoadIdentity();
 	board();
 	Game::getInstance().drawFigures();
-	//figures();
 	
 	glFlush();//
 	glutSwapBuffers();

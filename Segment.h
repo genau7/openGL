@@ -22,9 +22,19 @@ const float SEGS[11][8] = {
 
 
 
+const int colorsNum = 8;
 
+const float colors[8][3] = {
+		{1.0f, 0.5f, 0.0f}, //orange
+		{ 1.0f, 0.0f, 0.0f }, //red
+		{ 0.0f, 1.0f, 0.0f }, //green 
+		{ 0.0f, 0.0f, 1.0f }, //blue
+		{ 0.95f, 0.1f, 0.8f }, //pink
+		{1.0f, 1.0f, 0.0f }, //yellow
+		{ 0.1, 0.8f, 0.8f }, //light blue
+		{ 0.1f, 0.6f, 0.0f } //deep green
 
-
+};
 
 
 

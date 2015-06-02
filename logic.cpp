@@ -5,6 +5,8 @@
 
 #include "logic.h"
 #include <iostream>
+#include <cstdlib>     /* srand, rand */
+#include <ctime>
 
 void Segment::getName(int index){
 	if (index == 0)
@@ -33,12 +35,10 @@ void Segment::getName(int index){
 		name = 'X';
 }
 
-Segment::Segment(int index, int color) {
+Segment::Segment(int index) {
 	vertices = SEGS[index];
-	this->color = color;
 	this->tile = tileLUT[index];
 	getName(index);
-	
 }
 
 void Segment::move(int increment){
@@ -56,9 +56,12 @@ void Segment::toSide(int increment){
 //-------------------------------------Figure--------------------------------
 
 Figure::Figure(){
+	srand(time(NULL));
 	dx = dy = 0; 
 	angle = 0.0f;
 	dTile = 0;
+	colorIndex = rand() % colorsNum;
+
 }
 int Figure::size(){
 	return segments.size();
@@ -73,13 +76,13 @@ void Figure::printPos(){
 	}
 	std::cout << "dTile="<<dTile<<"  dx="<<dx<<", dy="<<dy<<std::endl;
 }
-void Figure::generateSegments(int segsIndicator, int color){
+void Figure::generateSegments(int segsIndicator){
 	Segment * seg;
 	int segNum = 4;
 	int div = 1000;
 	for (int i = 0; i < segNum; i++){
 		int index = segsIndicator / div;
-		seg = new Segment(index, color);
+		seg = new Segment(index);
 		segsIndicator = segsIndicator%div;
 		segments.push_back(seg);
 		div /= 10;
@@ -91,10 +94,8 @@ void Figure::rotateSegments(int segsCode){
 	for (int i = 0; i < size(); i++){
 		int index = segsCode / div;
 		Segment * seg = segments[i];
-		int color = seg->color;
 		segments.pop_front();
-		//delete seg;
-		seg = new Segment(index, color);
+		seg = new Segment(index);
 		seg->move(dTile);
 		segsCode = segsCode%div;
 		segments.push_back(seg);
@@ -112,7 +113,27 @@ void Figure::fixRotation(){
 	while (outOfBoundsY(0))
 		move(boardWidthTiles);
 	
-	//while (outOfBoundsY(0))
+	bool collision = true;
+	int buff = 0;
+	while (collision){
+		collision = willCollide(0);
+		//react to collision down
+		if (collision)
+			move(boardWidthTiles);
+		else
+			return;
+
+		//react to collision right
+		collision = willCollide(0);
+		if (collision)
+			move(-1);
+		else
+			return;
+		
+		++buff;
+		if (buff > 4)
+			break;
+	}
 		//toSide(boardWidthTiles);
 	
 }
@@ -192,12 +213,17 @@ void Figure::toSide(int increment){
 }
 
 void Figure::draw(){
+	float r = colors[colorIndex][0];
+	float g = colors[colorIndex][1];
+	float b = colors[colorIndex][2];
 	glPushMatrix();
 	glTranslatef(dx, dy, 0);
 	glTranslatef(-0.5f, 1.0f, 0);
 	//glRotatef(angle, 0, 0, 1);
 	
-	glColor4f(1, 1, 0, 1);
+	//glColor4f(1, 1, 0, 1);
+	glColor3f(r,g,b);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	for (int i = 0; i < size(); ++i){
@@ -215,30 +241,29 @@ void Figure::draw(){
 //-------------------------------------------------Fig Factory------------------------
 
 Figure* FigFactory::newFigure(){
-	int figureType = 2; //random here
-	int color = 1; //random here
+	int figureType = rand() % 5;
 	int verticesNum;
 	switch (figureType){
 	case 0:
-		return new FigSquare(color); 
+		return new FigSquare; 
 		break;
 	case 1:
-		return new FigS(color); 
+		return new FigS; 
 		break;
 	case 2:
-		return new FigStrip(color);
+		return new FigStrip;
 		break;
 	case 3:
-		return new FigT(color); 
+		return new FigT; 
 		break;
 	case 4:
-		return new FigL(color); 
+		return new FigL; 
 		break;
 	}
 }
 
-FigSquare::FigSquare(int color){
-	generateSegments(134, color);
+FigSquare::FigSquare( ){
+	generateSegments(134);
 }
 
 void FigSquare::rotate(){
@@ -253,8 +278,8 @@ void FigSquare::rotate(){
 	angle = (angle + 90) % 360;
 }
 
-FigS::FigS(int color){
-	generateSegments(1234, color);
+FigS::FigS(){
+	generateSegments(1234);
 }
 
 void FigS::rotate(){
@@ -270,8 +295,8 @@ void FigS::rotate(){
 	fixRotation();
 }
 
-FigStrip::FigStrip(int color){
-	generateSegments(379, color);
+FigStrip::FigStrip(){
+	generateSegments(379);
 }
 
 void FigStrip::rotate(){
@@ -292,8 +317,8 @@ void FigStrip::rotate(){
 	
 }
 
-FigT::FigT(int color){
-	generateSegments(124, color);
+FigT::FigT(){
+	generateSegments(124);
 }
 
 void FigT::rotate(){
@@ -309,8 +334,8 @@ void FigT::rotate(){
 	fixRotation();
 }
 
-FigL::FigL(int color){
-	generateSegments(123, color);
+FigL::FigL(){
+	generateSegments(123);
 	//angle
 }
 
@@ -337,6 +362,7 @@ Game& Game::getInstance(){
 
 Game::Game(){
 	gameState = 1; 
+	time = 0;
 	timeForNewFigure = true;
 	for (int i = 0; i < boardHeightTiles; ++i){
 		for (int j = 0; j < boardWidthTiles; ++j)
@@ -370,18 +396,3 @@ void Game::occupyTile(int tileNum){
 	int col = tileNum%boardWidthTiles;
 	tiles[row][col] = 1;
 }
-/*
-const int FigStripe::rVertices[2][4] = { { 0, 1, 1, 0 }, { 0, 0, 4, 4 } };
-
-Figure* FigFactory::createFig(int type, int color){
-	if (type == 0)
-		return new FigStripe(color);
-}
-
-
-
-void Game::start(){
-	while (gameState == 1){
-		std::cout << "I'm playing\t";
-	}
-}*/

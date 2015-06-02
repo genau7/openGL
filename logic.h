@@ -18,12 +18,11 @@ const int OK = 1;
 
 
 struct Segment {
-	Segment(int index, int color);
+	Segment(int index);
 	void down();//
 	void toSide(int increment);//
 	void move(int increment);
 	void getName(int index);
-	int color;//
 	int tile;
 	const float * vertices;
 	char name;
@@ -35,8 +34,6 @@ public:
 	int size();
 	void down();
 	void toSide(int increment);
-	//void left();
-	//void right();
 	void move(int increment);
 	virtual void rotate()=0;
 	void fixRotation();
@@ -52,10 +49,9 @@ public:
 	int angle;
 	int color;
 	std::deque<Segment*> segments;
-	//int * occupiedTiles;
-
+	int colorIndex;
 protected:
-	void generateSegments(int segsIndicator, int color);
+	void generateSegments(int segsIndicator);
 	void rotateSegments(int segsCode);
 	int xDirRot;
 	int yDirRot;
@@ -66,32 +62,32 @@ protected:
 
 class FigSquare : public Figure{
 public:
-	FigSquare(int color);
+	FigSquare();
 	virtual void rotate();
 };
 
 class FigS : public Figure{
 public:
-	FigS(int color);
+	FigS();
 	virtual void rotate();
 };
 
 class FigStrip : public Figure{
 public:
-	FigStrip(int color);
+	FigStrip();
 	virtual void rotate();
 	
 };
 
 class FigT : public Figure{
 public:
-	FigT(int color);
+	FigT();
 	virtual void rotate();
 };
 
 class FigL : public Figure{
 public:
-	FigL(int color);
+	FigL();
 	virtual void rotate();
 };
 
@@ -111,6 +107,8 @@ public:
 	bool isTileTaken(int tileNum);
 	bool timeForNewFigure;
 	void occupyTile(int tileNum);
+	int time;
+	const int cycle = 360;
 	
 	
 
