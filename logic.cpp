@@ -134,8 +134,6 @@ void Figure::fixRotation(){
 		if (buff > 4)
 			break;
 	}
-		//toSide(boardWidthTiles);
-	
 }
 
 bool Figure::willCollide(int increment){
@@ -168,6 +166,12 @@ bool Figure::outOfBoundsY(int increment){
 	}
 	return false;
 }
+void Figure::occupyTiles(){
+	for (int i = 0; i < size(); ++i){
+		int tile = segments[i]->tile;
+		Game::getInstance().occupyTile(tile);
+	}
+}
 
 void Figure::stopMoving(){
 	Game::getInstance().timeForNewFigure = true;
@@ -177,26 +181,31 @@ void Figure::stopMoving(){
 	}
 }
 
+
+
 void Figure::move(int increment){
 	for (int i = 0; i < size(); ++i)
 		segments[i]->move(increment);
 	dTile += increment;
 	int row = (initTile + dTile) / boardWidthTiles;
 	int col = (initTile + dTile) % boardWidthTiles;
-	dx = col*0.1f;
 
-	//19 is tehe index of the upper most lineon board
+	//19 is the index of the upper most lineon board
 	dy = (19-row)*-0.1f;
+	dx = col*0.1f;
+	printPos();
 }
-void Figure::down(){
+void Figure::down(bool isCollapising){
+	bool collision = willCollide(-boardWidthTiles);
+	bool bounds = outOfBoundsY(-boardWidthTiles);
 	if (willCollide(-boardWidthTiles) || outOfBoundsY(-boardWidthTiles)){
-		stopMoving();	
+		if (!isCollapising)
+			Game::getInstance().timeForNewFigure = true;
+		occupyTiles();
 		return;
+
 	}
 	move(-boardWidthTiles);
-
-	//dTile += -boardWidthTiles;
-	//dy -= 0.1f;
 }
 
 void Figure::toSide(int increment){
@@ -210,6 +219,20 @@ void Figure::toSide(int increment){
 
 	//dTile += increment;
 	//dx += increment*0.1f;
+}
+
+void Figure::clearLine(int row){
+	bool erase = false;
+	for (int i = 0; i < size(); ++i){
+		Segment * seg = segments[i];
+		if (seg->tile / boardWidthTiles == row){
+			erase = true;
+			//del seg
+			Game::getInstance().tiles[row][seg->tile%boardWidthTiles] = 0;
+			segments.erase(segments.begin() + i);
+			--i;
+		}
+	}
 }
 
 void Figure::draw(){
@@ -364,10 +387,54 @@ Game& Game::getInstance(){
 Game::Game(){
 	gameState = 1; 
 	time = 0;
+	cycle = 180;
 	timeForNewFigure = true;
 	for (int i = 0; i < boardHeightTiles; ++i){
 		for (int j = 0; j < boardWidthTiles; ++j)
 			tiles[i][j] = 0;
+	}
+}
+
+void Game::refreshLines(){
+	int n = 0;
+	for (int row = 0; row < boardHeightTiles; ++row){
+		int sum = 0;
+		for (int col = 0; col < boardWidthTiles; ++col)
+			sum += tiles[row][col];
+
+		if (sum == boardWidthTiles){
+			n++;
+			if (n == 2)
+				n++;
+			clearLine(row);
+			sum = 0;
+			lowerFiguresAfterLinesDisappeared(row);
+		}
+		
+	}
+}
+void Game::clearLine(int row) {
+	for (int i = 0; i < figures.size(); ++i){
+		figures[i]->clearLine(row);
+		
+	}
+}
+void Game::clearRowsAbove(int r){
+	for (int row = r; row < boardHeightTiles; ++row){
+		for (int col = 0; col < boardWidthTiles; ++col)
+			tiles[row][col] = 0;
+	}
+}
+
+void Game::lowerFiguresAfterLinesDisappeared(int r){
+	clearRowsAbove(r);
+	for (int i = 0; i < figures.size(); ++i){
+		Figure* fig = figures[i];
+		if (fig != currentFig){
+			figures[i]->down(true);
+			figures[i]->occupyTiles();
+		}
+		//figures[i]->stopMoving();
 	}
 }
 

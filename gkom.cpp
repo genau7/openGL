@@ -42,9 +42,12 @@ void display() {
 	glFlush();//
 	glutSwapBuffers();
 	//std::cout << "\ttime to move\n";
-	if (Game::getInstance().timeToMove())
+	if (Game::getInstance().timeToMove()){
 		//std::cout << "\ttime to move\n";
+		Game::getInstance().refreshLines();
 		fig->down();
+		
+	}
 }
 
 void reshape(GLsizei w, GLsizei h) {
@@ -72,7 +75,7 @@ void arrowKeyPressed(int _key, int x, int y) {
 		//if (mBoard.isPossibleMovement(mGame.mPosX - 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
 		//mGame.mPosX--;
 		fig->toSide(-1);
-		fig->printPos();
+		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	
@@ -87,7 +90,7 @@ void arrowKeyPressed(int _key, int x, int y) {
 		//if (mBoard.isPossibleMovement(mGame.mPosX + 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
 		//	mGame.mPosX++;
 		fig->toSide(1);
-		fig->printPos();
+		//fig->printPos();
 
 		glutPostRedisplay();
 		break;

@@ -1,6 +1,10 @@
 #ifndef LOGIC_H0.9
 #define LOGIC_H
+/*
+bugi:
+jak kolizja z boku, to figura zastuga..
 
+*/
 
 #include <vector>
 #include<list>
@@ -32,7 +36,7 @@ class Figure {
 public:
 	Figure();
 	int size();
-	void down();
+	void down(bool isCollapsing = false);
 	void toSide(int increment);
 	void move(int increment);
 	virtual void rotate()=0;
@@ -43,6 +47,8 @@ public:
 	bool outOfBoundsY(int increment);
 	void stopMoving();
 	void printPos();
+	void clearLine(int row);
+	void occupyTiles();
 
 	float dx, dy;
 	int dTile;
@@ -109,8 +115,10 @@ public:
 	void occupyTile(int tileNum);
 	bool timeToMove();
 	void refreshLines();
+	void clearLine(int row);
+	void lowerFiguresAfterLinesDisappeared(int r);
 	int time;
-	const int cycle = 200;
+	int cycle;
 	Figure * currentFig;
 	Figure* nextFig;
 	
@@ -124,7 +132,7 @@ public:
 	void operator=(Game const&) = delete;
 private:
 	Game();
-
+	void clearRowsAbove(int r);
 	std::deque<Figure*> figures;
 
 	//-1 lost, 0 quit, 1 ongoing
