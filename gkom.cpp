@@ -5,6 +5,8 @@
 #include <iostream>
 //#include <GL/freeglut.h>
 Texture myTex;
+GLuint tex;
+
 
 //Screen constants
 const int SCREEN_WIDTH = 800;
@@ -13,6 +15,34 @@ const int SCREEN_FPS = 60;
 
 int flag = true;
 Figure * fig = NULL;
+
+float pixels[] = {
+	0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
+};
+float texi[] = {
+	0.f, 0.f,
+	1.f, 0.f,
+	1.f, 1.f,
+	0.f, 1.f,
+};
+
+float  const vers[] = {
+	-0.5f, 0.5f,  // Top-left
+	0.5f, 0.5f, // Top-right
+	0.5f, -0.5f,// Bottom-right
+	-0.5f, -0.5f
+};
+
+float vertices[] = {
+	//  Position      Color             Texcoords
+	-0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Top-left
+	0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Top-right
+	0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-right
+	-0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f  // Bottom-left
+};
+
+
 void keyboard(unsigned char key, int x, int y)
 {
 	//if (key == 't') vertexArray = !vertexArray;
@@ -20,7 +50,13 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 void init(){
-	glEnable(GL_TEXTURE_2D);
+	
+	//glGenTextures(1, &tex);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+
+
+
 	//Create OpenGL 2.1 context
 	//glutInitContextVersion(2, 1);
 }
@@ -45,29 +81,46 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	board();
+	//board();
 
+	glEnable(GL_TEXTURE_2D);
 
-	//glPushMatrix();
+	glPushMatrix();
 	//Render checkerboard texture
 	//myTex.render(-0.2, -1);
-	//glPopMatrix();
-
-
-
-	glLoadIdentity();
-
-	//Move to rendering point
-	glTranslatef(-0.2, -1, 0.f);
-
-	//Set texture ID
-	int i = myTex.getTextureID();
-	//glBindTexture(GL_TEXTURE_2D, myTex.getTextureID());
+	
+	
 
 	
 
+	//Set texture ID
+	if (myTex.getTextureID() != 0){
+		glLoadIdentity();
+		glClear(GL_COLOR_BUFFER_BIT);
+		//Move to rendering point
+		//glTranslatef(-0.2, -1, 0.f);
+		glTranslatef(0.5f, 1.0f, 0);
 
-	Game::getInstance().drawFigures();
+		glBindTexture(GL_TEXTURE_2D, myTex.getTextureID());
+
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(2, GL_FLOAT, 0, vers);
+			glTexCoordPointer(2, GL_FLOAT, 0, texi);
+			glDrawArrays(GL_QUADS, 0, 4);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glBindTexture(GL_TEXTURE_2D, NULL);
+
+
+	
+	}	
+
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
+
+	//Game::getInstance().drawFigures();
 
 
 	

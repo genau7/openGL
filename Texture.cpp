@@ -121,7 +121,7 @@ bool loadMedia(Texture & texture) {
 			//Set pixel to red
 			colors[0] = 0xFF;
 			colors[1] = 0x00;
-			colors[2] = 0x00;
+			colors[2] = 0xAA;
 			colors[3] = 0xFF;
 		}
 	}

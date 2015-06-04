@@ -1,15 +1,9 @@
 #ifndef LOGIC_H0.9
 #define LOGIC_H
-/*
-bugi:
-jak kolizja z boku, to figura zastuga..
-
-*/
 
 #include <vector>
 #include<list>
 #include<deque>
-
 
 #include "Segment.h"
 #include "Texture.h"
