@@ -8,6 +8,17 @@
 #include <cstdlib>     /* srand, rand */
 #include <ctime>
 
+
+
+float texi[] = {
+	0.f, 0.f,
+	1.f, 0.f,
+	1.f, 1.f,
+	0.f, 1.f,
+};
+
+
+
 void Segment::getName(int index){
 	if (index == 0)
 		name = 'A';
@@ -238,22 +249,25 @@ void Figure::draw(){
 	float g = colors[colorIndex][1];
 	float b = colors[colorIndex][2];
 	glPushMatrix();
-	glTranslatef(dx, dy, 0);
-	glTranslatef(-0.5f, 1.0f, 0);
-	//glRotatef(angle, 0, 0, 1);
-	
-	//glColor4f(1, 1, 0, 1);
-	glColor3f(r,g,b);
+		glBindTexture(GL_TEXTURE_2D, Game::getInstance().myTex.getTextureID());	
+		//glRotatef(angle, 0, 0, 1);
+		glColor3f(r,g,b);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+		glTranslatef(dx, dy, 0);
+		glTranslatef(-0.5f, 1.0f, 0);
 
-	for (int i = 0; i < size(); ++i){
-		glVertexPointer(2, GL_FLOAT, 0, segments[i]->vertices);
-		glDrawArrays(GL_QUADS, 0, 4);
+		for (int i = 0; i < size(); ++i){
+			glVertexPointer(2, GL_FLOAT, 0, segments[i]->vertices);
+			glTexCoordPointer(2, GL_FLOAT, 0, texi);
+			glDrawArrays(GL_QUADS, 0, 4);
 
-	}
+		}
 
-	glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glBindTexture(GL_TEXTURE_2D, NULL);
 	glPopMatrix();
 
 }

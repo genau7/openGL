@@ -50,6 +50,7 @@ public:
 	int color;
 	std::deque<Segment*> segments;
 	int colorIndex;
+	
 protected:
 	void generateSegments(int segsIndicator);
 	void rotateSegments(int segsCode);
@@ -115,6 +116,7 @@ public:
 	int cycle;
 	Figure * currentFig;
 	Figure* nextFig;
+	Texture myTex;
 	
 	
 

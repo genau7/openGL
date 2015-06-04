@@ -4,7 +4,7 @@
 #include "logic.h"
 #include <iostream>
 //#include <GL/freeglut.h>
-Texture myTex;
+
 GLuint tex;
 
 
@@ -20,7 +20,7 @@ float pixels[] = {
 	0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
 	1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
 };
-float texi[] = {
+float texi2[] = {
 	0.f, 0.f,
 	1.f, 0.f,
 	1.f, 1.f,
@@ -55,10 +55,6 @@ void init(){
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
 
-
-
-	//Create OpenGL 2.1 context
-	//glutInitContextVersion(2, 1);
 }
 
 void board(){
@@ -81,47 +77,16 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//board();
-
+	board();
+	
 	glEnable(GL_TEXTURE_2D);
-
-	glPushMatrix();
-	//Render checkerboard texture
-	//myTex.render(-0.2, -1);
-	
 	
 
-	
-
-	//Set texture ID
-	if (myTex.getTextureID() != 0){
-		glLoadIdentity();
-		glClear(GL_COLOR_BUFFER_BIT);
-		//Move to rendering point
-		//glTranslatef(-0.2, -1, 0.f);
-		glTranslatef(0.5f, 1.0f, 0);
-
-		glBindTexture(GL_TEXTURE_2D, myTex.getTextureID());
-
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(2, GL_FLOAT, 0, vers);
-			glTexCoordPointer(2, GL_FLOAT, 0, texi);
-			glDrawArrays(GL_QUADS, 0, 4);
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glBindTexture(GL_TEXTURE_2D, NULL);
 
 
-	
-	}	
 
-	glPopMatrix();
+	Game::getInstance().drawFigures();
 	glDisable(GL_TEXTURE_2D);
-
-
-	//Game::getInstance().drawFigures();
-
 
 	
 
@@ -210,7 +175,7 @@ int main(int argc, char **argv)
 	glutSpecialFunc(arrowKeyPressed);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(display);
-	loadMedia(myTex);
+	loadMedia(Game::getInstance().myTex);
 	init();
 	glutMainLoop();
 	return 0;
