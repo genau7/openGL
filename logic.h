@@ -9,10 +9,10 @@ jak kolizja z boku, to figura zastuga..
 #include <vector>
 #include<list>
 #include<deque>
-#include <math.h>  
-#include "GLUT.H"
-#include <gl\GL.h>
+
+
 #include "Segment.h"
+#include "Texture.h"
 
 const int boardWidthTiles = 10;
 const int boardHeightTiles = 20;

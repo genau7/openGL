@@ -196,8 +196,8 @@ void Figure::move(int increment){
 	printPos();
 }
 void Figure::down(bool isCollapising){
-	bool collision = willCollide(-boardWidthTiles);
-	bool bounds = outOfBoundsY(-boardWidthTiles);
+	//bool collision = willCollide(-boardWidthTiles);
+	//bool bounds = outOfBoundsY(-boardWidthTiles);
 	if (willCollide(-boardWidthTiles) || outOfBoundsY(-boardWidthTiles)){
 		if (!isCollapising)
 			Game::getInstance().timeForNewFigure = true;
@@ -211,10 +211,8 @@ void Figure::down(bool isCollapising){
 void Figure::toSide(int increment){
 	if (outOfBoundsX(increment))
 		return;
-	if (willCollide(increment)){
-		stopMoving();
+	if (willCollide(increment))
 		return;
-	}
 	move(increment);
 
 	//dTile += increment;

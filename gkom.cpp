@@ -3,6 +3,13 @@
 
 #include "logic.h"
 #include <iostream>
+//#include <GL/freeglut.h>
+Texture myTex;
+
+//Screen constants
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 800;
+const int SCREEN_FPS = 60;
 
 int flag = true;
 Figure * fig = NULL;
@@ -13,7 +20,9 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 void init(){
-	
+	glEnable(GL_TEXTURE_2D);
+	//Create OpenGL 2.1 context
+	//glutInitContextVersion(2, 1);
 }
 
 void board(){
@@ -37,7 +46,37 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	board();
+
+
+	//glPushMatrix();
+	//Render checkerboard texture
+	//myTex.render(-0.2, -1);
+	//glPopMatrix();
+
+
+
+	glLoadIdentity();
+
+	//Move to rendering point
+	glTranslatef(-0.2, -1, 0.f);
+
+	//Set texture ID
+	int i = myTex.getTextureID();
+	//glBindTexture(GL_TEXTURE_2D, myTex.getTextureID());
+
+	
+
+
 	Game::getInstance().drawFigures();
+
+
+	
+
+	
+
+
+
+
 	
 	glFlush();//
 	glutSwapBuffers();
@@ -111,13 +150,14 @@ int main(int argc, char **argv)
 	//glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA);//alpha
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(800, 800);
+	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutCreateWindow("Tetris - GKOM, Katarzyna Stepek");
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(arrowKeyPressed);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(display);
+	loadMedia(myTex);
 	init();
 	glutMainLoop();
 	return 0;
