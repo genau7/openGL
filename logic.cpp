@@ -407,13 +407,30 @@ Game::Game(){
 	gameState = 1; 
 	gameOver = false;
 	score = 0;
+	level = 1;
 	time = 0;
-	cycle = 100;
+	cycle = 160;
 	timeForNewFigure = true;
 	for (int i = 0; i < boardHeightTiles; ++i){
 		for (int j = 0; j < boardWidthTiles; ++j)
 			tiles[i][j] = 0;
 	}
+}
+void Game::refresh(){
+	refreshLines();
+	refreshSpeed();
+}
+
+void Game::refreshSpeed(){
+	if (cycle > 10){
+		int newLevel = score / 50 + 1;
+		if (level < newLevel){
+			level = newLevel;
+			cycle -= 10;
+		}
+		
+	}
+	
 }
 
 void Game::refreshLines(){

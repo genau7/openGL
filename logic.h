@@ -109,7 +109,8 @@ public:
 	bool timeForNewFigure;
 	void occupyTile(int tileNum);
 	bool timeToMove();
-	void refreshLines();
+	
+	void refresh();
 	void clearLine(int row);
 	void lowerFiguresAfterLinesDisappeared(int r);
 	int time;
@@ -119,6 +120,7 @@ public:
 	Texture myTex;
 	bool gameOver;
 	int score;
+	int level;
 
 	
 	
@@ -133,6 +135,8 @@ private:
 	Game();
 	void clearRowsAbove(int r);
 	std::deque<Figure*> figures;
+	void refreshSpeed();
+	void refreshLines();
 
 	//-1 lost, 0 quit, 1 ongoing
 	int gameState;

@@ -74,12 +74,22 @@ void BitmapText(char *str, float wcx, float wcy){
 	}
 }
 
+
+void printGameOver(char *str, float wcx, float wcy){
+	glPushMatrix();
+	glScalef(1.5, 1.5, 1);
+	glRasterPos2f(wcx, wcy);
+	for (int i = 0; str[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
+	}
+	glPopMatrix();
+}
+
 void printStats(){
 	Game &game = Game::getInstance();
 	glColor3f(1, 0, 0);
 	char msg[100];
-	int level = game.score / 50;
-	sprintf_s(msg, "Level: %d", level);
+	sprintf_s(msg, "Level: %d", game.level);
 	BitmapText(msg, 0.5, 0.3);
 
 	sprintf_s(msg, "Score: %d", game.score);
@@ -88,7 +98,7 @@ void printStats(){
 void display() {	
 	Game &game = Game::getInstance();
 	if (game.gameOver){
-		BitmapText("Game Over", 0.5, 0.5);
+		printGameOver("Game Over", 0.5, 0.5);
 
 	}
 	else {
@@ -113,7 +123,7 @@ void display() {
 		printStats();
 
 		
-		game.refreshLines();
+		game.refresh();
 
 
 		if (game.timeToMove()){
