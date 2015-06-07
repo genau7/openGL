@@ -131,13 +131,30 @@ void printStats(){
 	char msg[100];
 
 	sprintf_s(msg, " Level: %d", game.level);
-	BitmapText(msg, 0.5, 0.9);
+	BitmapText(msg, 0.5, 0.85);
 
 	sprintf_s(msg, "Score: %d", game.score);
-	BitmapText(msg, 0.5, 0.8);
+	BitmapText(msg, 0.5, 0.75);
 
 	//sprintf_s(msg, "Nest Figure:");
-	BitmapText("Next Figure:", 0.47, 0.6);
+	BitmapText("Next Figure:", 0.47, 0.57);
+}
+
+void printNext(){
+	glLoadIdentity();
+	glPushMatrix();
+	//glScalef(0.5, 0.5, 0);
+	glTranslatef(0.35, 0.52, 0);
+	glColor4f(0, 0, 0, 1);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, NEXT);
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopMatrix();
+
+	//glTranslatef(0.8, 0, 0);
+	//Game::getInstance().nextFig->draw();
+	//glPopMatrix();
 }
 void printInfo(){
 	glEnable(GL_BLEND);
@@ -145,8 +162,9 @@ void printInfo(){
 	glLoadIdentity();
 	glPushMatrix();
 	glScalef(0.6, 0.5, 0);
-	glTranslatef(1, 1, 0);
-	glColor4f(0, 1, 1, 0.2);
+	glTranslatef(1, 0.95, 0);
+	//glColor4f(0, 1, 1, 0.2);
+	glColor4f(0, 0, 0, 0.3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, BOARD);
 	glDrawArrays(GL_QUADS, 0, 4);
@@ -154,6 +172,7 @@ void printInfo(){
 	glPopMatrix();
 	glDisable(GL_BLEND);
 	printStats();
+	printNext();
 }
 
 void display() {	
@@ -168,6 +187,7 @@ void display() {
 			
 			//game.addFig(fig);
 			game.switchToNewFig();
+
 			
 		}
 		glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
@@ -298,7 +318,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutCreateWindow("Tetris - GKOM, Katarzyna Stepek");
 	glutDisplayFunc(display);
-	//glutMouseFunc(MouseButton);
+	glutMouseFunc(MouseButton);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(arrowKeyPressed);
 	glutReshapeFunc(reshape);

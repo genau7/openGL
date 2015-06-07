@@ -53,6 +53,7 @@ public:
 	int color;
 	std::deque<Segment*> segments;
 	int colorIndex;
+	int nr;
 	
 protected:
 	void generateSegments(int segsIndicator);
@@ -99,7 +100,7 @@ public:
 
 class FigFactory{
 public:
-	static Figure* newFigure();
+	static Figure* newFigure(bool constructor=false);
 };
 
 

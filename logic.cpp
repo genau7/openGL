@@ -8,6 +8,7 @@
 #include <cstdlib>     /* srand, rand */
 #include <ctime>
 
+static int id = 0;
 
 
 float texi[] = {
@@ -86,7 +87,7 @@ void Segment::draw(float r, float g, float b){
 
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
-	glLineWidth(3.0);
+	glLineWidth(2.50);
 	glColor3f(r*1.2, g*1.2, b*1.2);
 	glDrawArrays(GL_LINE_LOOP, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);//
@@ -109,6 +110,8 @@ void Segment::drawBorder(float r, float g, float b){
 //-------------------------------------Figure--------------------------------
 
 Figure::Figure(){
+	nr = id;
+	id++;
 	srand(time(NULL));
 	dx = dy = 0; 
 	angle = 0.0f;
@@ -129,7 +132,7 @@ void Figure::printPos(){
 		int col = seg->tile%boardWidthTiles;
 		std::cout << seg->name << "(" << seg->tile / boardWidthTiles << "," << seg->tile%boardWidthTiles << "), ";
 	}
-	std::cout << "dTile="<<dTile<<"  dx="<<dx<<", dy="<<dy<<std::endl;
+	std::cout << "dTile="<<dTile<<"  dx="<<dx<<", dy="<<dy<<" Id="<<nr<<std::endl;
 }
 void Figure::generateSegments(int segsIndicator){
 	Segment * seg;
@@ -249,7 +252,7 @@ void Figure::move(int increment){
 	//19 is the index of the upper most lineon board
 	dy = (19-row)*-0.1f;
 	dx = col*0.1f;
-	printPos();
+	//printPos();
 }
 void Figure::down(bool isCollapising){
 	//bool collision = willCollide(-boardWidthTiles);
@@ -295,20 +298,16 @@ void Figure::draw(){
 	float b = colors[colorIndex][2];
 	glPushMatrix();
 		glBindTexture(GL_TEXTURE_2D, Game::getInstance().myTex.getTextureID());	
-		//glRotatef(angle, 0, 0, 1);
-		
-		glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_VERTEX_ARRAY);
+				glTranslatef(dx, dy, 0);
+				glTranslatef(-0.500005f, 1.0f, 0);
 
-		glTranslatef(dx, dy, 0);
-		glTranslatef(-0.500005f, 1.0f, 0);
+				for (int i = 0; i < size(); ++i)	
+					segments[i]->draw(r,g,b);
+				for (int i = 0; i <size(); ++i)
+					segments[i]->drawBorder(r, g, b);
 
-		for (int i = 0; i < size(); ++i)	
-			segments[i]->draw(r,g,b);
-		for (int i = 0; i <size(); ++i)
-			segments[i]->drawBorder(r, g, b);
-
-		glDisableClientState(GL_VERTEX_ARRAY);
-		
+			glDisableClientState(GL_VERTEX_ARRAY);
 		glBindTexture(GL_TEXTURE_2D, NULL);
 	glPopMatrix();
 
@@ -318,24 +317,26 @@ void Figure::draw(){
 
 //-------------------------------------------------Fig Factory------------------------
 
-Figure* FigFactory::newFigure(){
+Figure* FigFactory::newFigure(bool constructor){
 	int figureType = rand() % 5;
+	if (constructor)
+		figureType = (figureType + 1) % 5;
 	int verticesNum;
 	switch (figureType){
 	case 0:
-		return Game::getInstance().currentFig=new FigSquare; 
+		return new FigSquare; 
 		break;
 	case 1:
-		return  Game::getInstance().currentFig = new FigS;
+		return  new FigS;
 		break;
 	case 2:
-		return  Game::getInstance().currentFig = new FigStrip;
+		return  new FigStrip;
 		break;
 	case 3:
-		return  Game::getInstance().currentFig = new FigT;
+		return  new FigT;
 		break;
 	case 4:
-		return  Game::getInstance().currentFig = new FigL;
+		return  new FigL;
 		break;
 	}
 }
@@ -438,10 +439,28 @@ Game& Game::getInstance(){
 }
 
 void Game::switchToNewFig(){
-	nextFig = FigFactory::newFigure();
+	printf("\nentered switch to new field\n");
+	if (currentFig!=NULL)
+		currentFig->printPos();
+	if (nextFig!=NULL)
+		nextFig->printPos();
+
+	//nextFig = FigFactory::newFigure();
+	//printf("\ngenerated next\n");
+	//currentFig->printPos();
+	//nextFig->printPos();
+
+	printf("\ncurrent=new\n");
 	currentFig = nextFig;
+	currentFig->printPos();
+	nextFig->printPos();
+
+	printf("\ngenerated next\n");
 	figures.push_back(currentFig);
 	timeForNewFigure = false;
+	nextFig = FigFactory::newFigure();
+	currentFig->printPos();
+	nextFig->printPos();
 	
 }
 
@@ -452,10 +471,26 @@ Game::Game(){
 	level = 1;
 	time = 0;
 	cycle = 150;
+
+
+	nextFig = FigFactory::newFigure(true);
+	currentFig = FigFactory::newFigure();
+	printf("===============================\n");
+	printf("Current:"); 	currentFig->printPos(); 
+
+	printf("\nNext:"); 	nextFig->printPos();
+	printf("===============================\n");
+	figures.push_back(currentFig);
+
+
+	nextFig = FigFactory::newFigure(true);
 	
-	//nextFig = FigFactory::newFigure();
+	//printf("\Constructor:\n");
 	//currentFig = nextFig;
-	switchToNewFig();
+	//printf("Current:"); 	currentFig->printPos(); currentFig->printPos();
+	//nextFig->printPos();
+	//printf("===============================\n");
+
 
 	timeForNewFigure = false;
 	for (int i = 0; i < boardHeightTiles; ++i){
