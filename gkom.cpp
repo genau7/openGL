@@ -54,10 +54,12 @@ void keyboard(unsigned char key, int x, int y)
 void init(){
 	glClearColor(0.0, 0.3, 0.3, 0.3);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 }
 
 void board(){
+	glLoadIdentity();
+	glTranslatef(-0.3f, 0.0f, 0);
 	glPushMatrix();
 		glColor4f(0, 0, 0, 0);
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -70,12 +72,13 @@ void board(){
 void BitmapText(char *str, float wcx, float wcy){
 	glRasterPos2f(wcx, wcy);
 	for (int i = 0; str[i] != '\0'; i++) {
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
 	}
 }
 
 
 void printGameOver(char *str, float wcx, float wcy){
+	
 	glPushMatrix();
 	glScalef(1.5, 1.5, 1);
 	glRasterPos2f(wcx, wcy);
@@ -87,14 +90,35 @@ void printGameOver(char *str, float wcx, float wcy){
 
 void printStats(){
 	Game &game = Game::getInstance();
-	glColor3f(1, 0, 0);
+	glColor3f(1, 1, 1);
 	char msg[100];
-	sprintf_s(msg, "Level: %d", game.level);
-	BitmapText(msg, 0.5, 0.3);
+
+	sprintf_s(msg, " Level: %d", game.level);
+	BitmapText(msg, 0.5, 0.9);
 
 	sprintf_s(msg, "Score: %d", game.score);
-	BitmapText(msg, 0.5, 0.2);
+	BitmapText(msg, 0.5, 0.8);
+
+	//sprintf_s(msg, "Nest Figure:");
+	BitmapText("Next Figure:", 0.47, 0.6);
 }
+void printInfo(){
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glLoadIdentity();
+	glPushMatrix();
+	glScalef(0.6, 0.5, 0);
+	glTranslatef(1, 1, 0);
+	glColor4f(0, 1, 1, 0.2);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, BOARD);
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopMatrix();
+	glDisable(GL_BLEND);
+	printStats();
+}
+
 void display() {	
 	Game &game = Game::getInstance();
 	if (game.gameOver){
@@ -107,20 +131,21 @@ void display() {
 			game.addFig(fig);
 		}
 
+		glScalef(0.98, 0.98, 0);
 		glClearColor(0.0, 0.3, 0.3, 0.3);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glTranslatef(-0.3f, 0.0f, 0);
+		
 
 		board();
-
+		
 		glEnable(GL_TEXTURE_2D);
 			game.drawFigures();
 		glDisable(GL_TEXTURE_2D);
 
-		printStats();
+		printInfo();
+		//printStats();
 
 		
 		game.refresh();

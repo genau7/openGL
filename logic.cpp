@@ -387,7 +387,7 @@ void FigL::rotate(){
 	if (angle == 0)
 		rotateSegments(148);
 	else if (angle == 90)
-		rotateSegments(345);
+		rotateSegments(2345);
 	else if (angle == 180)
 		rotateSegments(378);
 	else if (angle == 270)
