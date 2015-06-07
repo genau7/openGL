@@ -70,10 +70,7 @@ void Segment::toSide(int increment){
 void Segment::draw(float r, float g, float b){
 	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, Game::getInstance().myTex.getTextureID());
-	//glRotatef(angle, 0, 0, 1);
-	//glEnableClientState(GL_VERTEX_ARRAY);
-	//glTranslatef(dx, dy, 0);
-	//glTranslatef(-0.500005f, 1.0f, 0);
+
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);//
 			glColor3f(r, g, b);
@@ -83,7 +80,6 @@ void Segment::draw(float r, float g, float b){
 		
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	//glDisableClientState(GL_VERTEX_ARRAY);
 
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
@@ -439,29 +435,11 @@ Game& Game::getInstance(){
 }
 
 void Game::switchToNewFig(){
-	printf("\nentered switch to new field\n");
-	if (currentFig!=NULL)
-		currentFig->printPos();
-	if (nextFig!=NULL)
-		nextFig->printPos();
-
-	//nextFig = FigFactory::newFigure();
-	//printf("\ngenerated next\n");
-	//currentFig->printPos();
-	//nextFig->printPos();
-
-	printf("\ncurrent=new\n");
 	currentFig = nextFig;
-	currentFig->printPos();
-	nextFig->printPos();
 
-	printf("\ngenerated next\n");
 	figures.push_back(currentFig);
 	timeForNewFigure = false;
 	nextFig = FigFactory::newFigure();
-	currentFig->printPos();
-	nextFig->printPos();
-	
 }
 
 Game::Game(){
@@ -475,22 +453,8 @@ Game::Game(){
 
 	nextFig = FigFactory::newFigure(true);
 	currentFig = FigFactory::newFigure();
-	printf("===============================\n");
-	printf("Current:"); 	currentFig->printPos(); 
-
-	printf("\nNext:"); 	nextFig->printPos();
-	printf("===============================\n");
 	figures.push_back(currentFig);
-
-
 	nextFig = FigFactory::newFigure(true);
-	
-	//printf("\Constructor:\n");
-	//currentFig = nextFig;
-	//printf("Current:"); 	currentFig->printPos(); currentFig->printPos();
-	//nextFig->printPos();
-	//printf("===============================\n");
-
 
 	timeForNewFigure = false;
 	for (int i = 0; i < boardHeightTiles; ++i){

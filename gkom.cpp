@@ -15,7 +15,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
 const int SCREEN_FPS = 60;
 
-Button MyButton = { 5, 5, 100, 25 };
+Button MyButton = { 5, 5, 100, 25, "Button"};
 int flag = true;
 Figure * fig = NULL;
 int temp = 0;
@@ -59,23 +59,33 @@ void init(){
 	
 }
 
+void Font(void *font, char *text, int x, int y) {
+	glRasterPos2i(x, y);
+	while (*text != '\0')	{
+		glutBitmapCharacter(font, *text);
+		++text;
+	}
+}
+
 void board(){
-	//glLoadIdentity();
 	glTranslatef(-0.3f, 0.0f, 0);
-	//glPushMatrix();
-		glColor4f(0, 0, 0, 0);
-		glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(2, GL_FLOAT, 0, BOARD);
-			glDrawArrays(GL_QUADS, 0, 4);
-		glDisableClientState(GL_VERTEX_ARRAY);
-	//glPopMatrix();
+	glColor4f(0, 0, 0, 0);
+	glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(2, GL_FLOAT, 0, BOARD);
+		glDrawArrays(GL_QUADS, 0, 4);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void ButtonDraw(Button *b) {
+	int fontx = 100;
+	int fonty=200;
+
 	if (b)	{
 		glColor3f(0.6f, 0.6f, 0.6f);
-	
-		//draw background for the button.	
+
+		/*
+		*	draw background for the button.
+		*/
 		glBegin(GL_QUADS);
 		glVertex2i(b->x, b->y);
 		glVertex2i(b->x, b->y + b->h);
@@ -83,9 +93,11 @@ void ButtonDraw(Button *b) {
 		glVertex2i(b->x + b->w, b->y);
 		glEnd();
 
-		
-		//Draw an outline around the button with width 3
+		/*
+		*	Draw an outline around the button with width 3
+		*/
 		glLineWidth(3);
+
 		glColor3f(0.8f, 0.8f, 0.8f);
 
 		glBegin(GL_LINE_STRIP);
@@ -101,8 +113,9 @@ void ButtonDraw(Button *b) {
 		glVertex2i(b->x + b->w, b->y + b->h);
 		glVertex2i(b->x + b->w, b->y);
 		glEnd();
-
 		glLineWidth(1);
+		//glColor3f(1, 1, 1);
+		//Font(GLUT_BITMAP_HELVETICA_10, b->label, fontx, fonty);
 	}
 }
 
@@ -114,15 +127,28 @@ void BitmapText(char *str, float wcx, float wcy){
 }
 
 
-void printGameOver(char *str, float wcx, float wcy){
-	
+void printGameOver(float wcx, float wcy){
+	char* str = "GAME OVER";
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glPushMatrix();
-	glScalef(1.5, 1.5, 1);
-	glRasterPos2f(wcx, wcy);
-	for (int i = 0; str[i] != '\0'; i++) {
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str[i]);
-	}
+	glColor4f(0.0f, 0.0f, 0.0f,0.75f);
+
+	glBegin(GL_QUADS);
+	glVertex2i(0, 0);
+	glVertex2i(0, SCREEN_HEIGHT);
+	glVertex2i(SCREEN_WIDTH, SCREEN_HEIGHT);
+	glVertex2i(SCREEN_WIDTH, 0);
+	glEnd();
+
 	glPopMatrix();
+	glDisable(GL_BLEND);
+	
+	glColor3f(1, 1, 1);
+
+	Font(GLUT_BITMAP_TIMES_ROMAN_24, "GAME OVER", 400-60, 400-70);
+	
 }
 
 void printStats(){
@@ -172,53 +198,59 @@ void printInfo(){
 	printNext();
 }
 
-void display() {	
+void display() {
 	Game &game = Game::getInstance();
-	if (game.gameOver){
-		printGameOver("Game Over", 0.5, 0.5);
-		
-
-	}
-	else {
-		if (game.timeForNewFigure){
-			
-			//game.addFig(fig);
-			game.switchToNewFig();
-
-			
-		}
-		glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
-
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glScalef(0.98, 0.98, 0);
-		board();
-
-		glEnable(GL_TEXTURE_2D);
-			game.drawFigures();
+	bool canMove = !game.gameOver;
 	
 
-		printInfo();
-		glDisable(GL_TEXTURE_2D);
 
+	if (game.timeForNewFigure){
+
+		//game.addFig(fig);
+		game.switchToNewFig();
+
+
+	}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glScalef(0.98, 0.98, 0);
+	board();
+
+	glEnable(GL_TEXTURE_2D);
+	game.drawFigures();
+
+
+	printInfo();
+	glDisable(GL_TEXTURE_2D);
+
+	/*glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	ButtonDraw(&MyButton);*/
+
+	if (canMove){
+		game.refresh();
+		if (game.timeToMove())
+			game.currentFig->down();
+		
+	}
+
+	if (!canMove){
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		ButtonDraw(&MyButton);
-
-		game.refresh();
-		if (game.timeToMove()){
-			game.currentFig->down();
-		}
-
+		printGameOver(0.5, 0.85);
 	}
 
-	//ButtonDraw(&MyButton);
 	glFlush();//
 	glutSwapBuffers();
 	glutPostRedisplay();//
@@ -249,24 +281,20 @@ void arrowKeyPressed(int _key, int x, int y) {
 	switch (_key)	{
 	case(100) ://left key	
 		fig->toSide(-1);
-		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	
 	case(101) ://up key	
 		fig->rotate();
-		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	case(102) ://right key
 		fig->toSide(1);
-		//fig->printPos();
 
 		glutPostRedisplay();
 		break;
 	case(103) ://down key
 		fig->down();
-		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	}
@@ -288,21 +316,21 @@ void MouseButton(int button, int state, int x, int y) {
 			//printf("right ");
 			break;
 		}
-		printf("button pressed at (%d,%d)\n", x, y);
+		//printf("button pressed at (%d,%d)\n", x, y);
 	}
 	else{
 		switch (button) 		{
 		case GLUT_LEFT_BUTTON:
-			printf("left ");
+			//printf("left ");
 			break;
 		case GLUT_MIDDLE_BUTTON:
-			printf("middle ");
+			//printf("middle ");
 			break;
 		case GLUT_RIGHT_BUTTON:
-			printf("right ");
+			//printf("right ");
 			break;
 		}
-		printf("button released at (%d,%d)\n", x, y);
+		//printf("button released at (%d,%d)\n", x, y);
 	}
 	glutPostRedisplay();
 }
@@ -310,7 +338,6 @@ void MouseButton(int button, int state, int x, int y) {
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	//glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA);//alpha
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
