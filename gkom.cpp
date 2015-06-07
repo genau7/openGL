@@ -143,7 +143,6 @@ void printStats(){
 void printNext(){
 	glLoadIdentity();
 	glPushMatrix();
-	//glScalef(0.5, 0.5, 0);
 	glTranslatef(0.35, 0.52, 0);
 	glColor4f(0, 0, 0, 1);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -152,9 +151,8 @@ void printNext(){
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 
-	//glTranslatef(0.8, 0, 0);
-	//Game::getInstance().nextFig->draw();
-	//glPopMatrix();
+	glTranslatef(1, -0.55, 0);
+	Game::getInstance().nextFig->draw();
 }
 void printInfo(){
 	glEnable(GL_BLEND);
@@ -163,7 +161,6 @@ void printInfo(){
 	glPushMatrix();
 	glScalef(0.6, 0.5, 0);
 	glTranslatef(1, 0.95, 0);
-	//glColor4f(0, 1, 1, 0.2);
 	glColor4f(0, 0, 0, 0.3);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, BOARD);
@@ -202,9 +199,10 @@ void display() {
 
 		glEnable(GL_TEXTURE_2D);
 			game.drawFigures();
-		glDisable(GL_TEXTURE_2D);
+	
 
 		printInfo();
+		glDisable(GL_TEXTURE_2D);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
