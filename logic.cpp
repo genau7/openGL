@@ -440,11 +440,12 @@ void Game::refreshLines(){
 		for (int col = 0; col < boardWidthTiles; ++col)
 			sum += tiles[row][col];
 
+		//check if a line was formed
 		if (sum == boardWidthTiles){
 			score += 10;
-			n++;
-			if (n == 2)
-				n++;
+			n++;//
+			if (n == 2)//
+				n++;//
 			clearLine(row);
 			sum = 0;
 			lowerFiguresAfterLinesDisappeared(row);

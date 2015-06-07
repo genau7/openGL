@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "logic.h"
+#include "UIclasses.h"
 #include <iostream>
 #include <string>
 //#include <GL/freeglut.h>
@@ -14,6 +15,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 800;
 const int SCREEN_FPS = 60;
 
+Button MyButton = { 5, 5, 100, 25 };
 int flag = true;
 Figure * fig = NULL;
 int temp = 0;
@@ -58,15 +60,50 @@ void init(){
 }
 
 void board(){
-	glLoadIdentity();
+	//glLoadIdentity();
 	glTranslatef(-0.3f, 0.0f, 0);
-	glPushMatrix();
+	//glPushMatrix();
 		glColor4f(0, 0, 0, 0);
 		glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(2, GL_FLOAT, 0, BOARD);
 			glDrawArrays(GL_QUADS, 0, 4);
 		glDisableClientState(GL_VERTEX_ARRAY);
-	glPopMatrix();
+	//glPopMatrix();
+}
+
+void ButtonDraw(Button *b) {
+	if (b)	{
+		glColor3f(0.6f, 0.6f, 0.6f);
+	
+		//draw background for the button.	
+		glBegin(GL_QUADS);
+		glVertex2i(b->x, b->y);
+		glVertex2i(b->x, b->y + b->h);
+		glVertex2i(b->x + b->w, b->y + b->h);
+		glVertex2i(b->x + b->w, b->y);
+		glEnd();
+
+		
+		//Draw an outline around the button with width 3
+		glLineWidth(3);
+		glColor3f(0.8f, 0.8f, 0.8f);
+
+		glBegin(GL_LINE_STRIP);
+		glVertex2i(b->x + b->w, b->y);
+		glVertex2i(b->x, b->y);
+		glVertex2i(b->x, b->y + b->h);
+		glEnd();
+
+		glColor3f(0.4f, 0.4f, 0.4f);
+
+		glBegin(GL_LINE_STRIP);
+		glVertex2i(b->x, b->y + b->h);
+		glVertex2i(b->x + b->w, b->y + b->h);
+		glVertex2i(b->x + b->w, b->y);
+		glEnd();
+
+		glLineWidth(1);
+	}
 }
 
 void BitmapText(char *str, float wcx, float wcy){
@@ -130,31 +167,36 @@ void display() {
 			fig = FigFactory::newFigure();
 			game.addFig(fig);
 		}
+		glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
 
-		glScalef(0.98, 0.98, 0);
-		glClearColor(0.0, 0.3, 0.3, 0.3);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
-		
-
+		glLoadIdentity();
+		glScalef(0.98, 0.98, 0);
 		board();
-		
+
 		glEnable(GL_TEXTURE_2D);
 			game.drawFigures();
 		glDisable(GL_TEXTURE_2D);
 
 		printInfo();
-		//printStats();
 
-		
-		game.refresh();
-
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		ButtonDraw(&MyButton);
 
 		if (game.timeToMove()){
 			fig->down();
 		}
+
 	}
+
+	//ButtonDraw(&MyButton);
 	glFlush();//
 	glutSwapBuffers();
 	glutPostRedisplay();//
@@ -181,39 +223,66 @@ void reshape(GLsizei w, GLsizei h) {
 
 
 void arrowKeyPressed(int _key, int x, int y) {
+	static int c = 0;
 	switch (_key)	{
 	case(100) ://left key	
-		//if (mBoard.isPossibleMovement(mGame.mPosX - 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
-		//mGame.mPosX--;
 		fig->toSide(-1);
 		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	
 	case(101) ://up key	
-		//if (mBoard.isPossibleMovement(mGame.mPosX - 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
-		//	mGame.mPosX--;
 		fig->rotate();
-		fig->printPos();
+		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	case(102) ://right key
-		//if (mBoard.isPossibleMovement(mGame.mPosX + 1, mGame.mPosY, mGame.tetroType, mGame.mRotation))
-		//	mGame.mPosX++;
 		fig->toSide(1);
 		//fig->printPos();
 
 		glutPostRedisplay();
 		break;
 	case(103) ://down key
-
-		//if (mBoard.isPossibleMovement(mGame.mPosX, mGame.mPosY + 1, mGame.tetroType, mGame.mRotation))
-		//mGame.mPosY++;
 		fig->down();
-		fig->printPos();
+		//fig->printPos();
 		glutPostRedisplay();
 		break;
 	}
+}
+
+
+void MouseButton(int button, int state, int x, int y) {
+	
+	//has the button been pressed or released?
+	if (state == GLUT_DOWN)	{
+		switch (button)		{
+		case GLUT_LEFT_BUTTON:
+			//printf("left ");
+			break;
+		case GLUT_MIDDLE_BUTTON:
+			//printf("middle ");
+			break;
+		case GLUT_RIGHT_BUTTON:
+			//printf("right ");
+			break;
+		}
+		printf("button pressed at (%d,%d)\n", x, y);
+	}
+	else{
+		switch (button) 		{
+		case GLUT_LEFT_BUTTON:
+			printf("left ");
+			break;
+		case GLUT_MIDDLE_BUTTON:
+			printf("middle ");
+			break;
+		case GLUT_RIGHT_BUTTON:
+			printf("right ");
+			break;
+		}
+		printf("button released at (%d,%d)\n", x, y);
+	}
+	glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
@@ -225,6 +294,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutCreateWindow("Tetris - GKOM, Katarzyna Stepek");
 	glutDisplayFunc(display);
+	//glutMouseFunc(MouseButton);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(arrowKeyPressed);
 	glutReshapeFunc(reshape);
