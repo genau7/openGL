@@ -49,6 +49,8 @@ void Segment::getName(int index){
 Segment::Segment(int index) {
 	vertices = SEGS[index];
 	this->tile = tileLUT[index];
+	if (Game::getInstance().isTileTaken(tile))
+		Game::getInstance().gameOver = true;
 	getName(index);
 }
 
@@ -190,6 +192,7 @@ void Figure::stopMoving(){
 		int tile = segments[i]->tile;
 		Game::getInstance().occupyTile(tile);
 	}
+	//Game::getInstance().refreshLines();
 }
 
 
@@ -251,22 +254,27 @@ void Figure::draw(){
 	glPushMatrix();
 		glBindTexture(GL_TEXTURE_2D, Game::getInstance().myTex.getTextureID());	
 		//glRotatef(angle, 0, 0, 1);
-		glColor3f(r,g,b);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		
 		glEnableClientState(GL_VERTEX_ARRAY);
 
 		glTranslatef(dx, dy, 0);
-		glTranslatef(-0.5f, 1.0f, 0);
+		glTranslatef(-0.500005f, 1.0f, 0);
 
 		for (int i = 0; i < size(); ++i){
+			glColor3f(r, g, b);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glVertexPointer(2, GL_FLOAT, 0, segments[i]->vertices);
 			glTexCoordPointer(2, GL_FLOAT, 0, texi);
 			glDrawArrays(GL_QUADS, 0, 4);
+			glLineWidth(1.0);
+			glColor3f(r*0.8, g*0.8, b*0.8);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDrawArrays(GL_LINE_LOOP, 0, 4);
 
 		}
 
 		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		
 		glBindTexture(GL_TEXTURE_2D, NULL);
 	glPopMatrix();
 
@@ -392,14 +400,15 @@ void FigL::rotate(){
 //----------------------Game-----------------------
 Game& Game::getInstance(){
 	static Game game;
-
 	return game;
 }
 
 Game::Game(){
 	gameState = 1; 
+	gameOver = false;
+	score = 0;
 	time = 0;
-	cycle = 180;
+	cycle = 100;
 	timeForNewFigure = true;
 	for (int i = 0; i < boardHeightTiles; ++i){
 		for (int j = 0; j < boardWidthTiles; ++j)
@@ -415,6 +424,7 @@ void Game::refreshLines(){
 			sum += tiles[row][col];
 
 		if (sum == boardWidthTiles){
+			score += 10;
 			n++;
 			if (n == 2)
 				n++;
@@ -428,7 +438,7 @@ void Game::refreshLines(){
 void Game::clearLine(int row) {
 	for (int i = 0; i < figures.size(); ++i){
 		figures[i]->clearLine(row);
-		
+
 	}
 }
 void Game::clearRowsAbove(int r){
@@ -451,14 +461,15 @@ void Game::lowerFiguresAfterLinesDisappeared(int r){
 }
 
 void Game::drawFigures(){
+	//increase time
+	if (++time > cycle)
+		time = 0;
+
 	bool noCollision = true;
 	for (int i = 0; i < figures.size(); ++i){
 		Figure * fig = figures[i];
 		fig->draw();
 	}
-	//increase time
-	if (++time > cycle)
-		time = 0;
 }
 
 bool Game::timeToMove(){

@@ -26,7 +26,7 @@ const int colorsNum = 8;
 
 const float colors[8][3] = {
 		{1.0f, 0.5f, 0.0f}, //orange
-		{ 1.0f, 0.0f, 0.0f }, //red
+		{ 0.9f, 0.2f, 0.1f }, //reddish
 		{ 0.0f, 1.0f, 0.0f }, //green 
 		{ 0.0f, 0.0f, 1.0f }, //blue
 		{ 0.95f, 0.1f, 0.8f }, //pink

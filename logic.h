@@ -117,6 +117,9 @@ public:
 	Figure * currentFig;
 	Figure* nextFig;
 	Texture myTex;
+	bool gameOver;
+	int score;
+
 	
 	
 

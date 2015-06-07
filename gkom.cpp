@@ -3,6 +3,7 @@
 
 #include "logic.h"
 #include <iostream>
+#include <string>
 //#include <GL/freeglut.h>
 
 GLuint tex;
@@ -15,6 +16,7 @@ const int SCREEN_FPS = 60;
 
 int flag = true;
 Figure * fig = NULL;
+int temp = 0;
 
 float pixels[] = {
 	0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -50,10 +52,8 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 void init(){
-	
-	//glGenTextures(1, &tex);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+	glClearColor(0.0, 0.3, 0.3, 0.3);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 }
 
@@ -67,44 +67,63 @@ void board(){
 	glPopMatrix();
 }
 
-void display() {
-	if (Game::getInstance().timeForNewFigure){
-		fig = FigFactory::newFigure();
-		Game::getInstance().addFig(fig);
+void BitmapText(char *str, float wcx, float wcy){
+	glRasterPos2f(wcx, wcy);
+	for (int i = 0; str[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
 	}
+}
 
-	glClearColor(0.0, 0.3, 0.3, 0.3);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	board();
-	
-	glEnable(GL_TEXTURE_2D);
-	
+void printStats(){
+	Game &game = Game::getInstance();
+	glColor3f(1, 0, 0);
+	char msg[100];
+	int level = game.score / 50;
+	sprintf_s(msg, "Level: %d", level);
+	BitmapText(msg, 0.5, 0.3);
+
+	sprintf_s(msg, "Score: %d", game.score);
+	BitmapText(msg, 0.5, 0.2);
+}
+void display() {	
+	Game &game = Game::getInstance();
+	if (game.gameOver){
+		BitmapText("Game Over", 0.5, 0.5);
+
+	}
+	else {
+		if (game.timeForNewFigure){
+			fig = FigFactory::newFigure();
+			game.addFig(fig);
+		}
+
+		glClearColor(0.0, 0.3, 0.3, 0.3);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef(-0.3f, 0.0f, 0);
+
+		board();
+
+		glEnable(GL_TEXTURE_2D);
+			game.drawFigures();
+		glDisable(GL_TEXTURE_2D);
+
+		printStats();
+
+		
+		game.refreshLines();
 
 
-
-
-	Game::getInstance().drawFigures();
-	glDisable(GL_TEXTURE_2D);
-
-	
-
-	
-
-
-
-
-	
+		if (game.timeToMove()){
+			fig->down();
+		}
+	}
 	glFlush();//
 	glutSwapBuffers();
-	//std::cout << "\ttime to move\n";
-	if (Game::getInstance().timeToMove()){
-		//std::cout << "\ttime to move\n";
-		Game::getInstance().refreshLines();
-		fig->down();
-		
-	}
+	glutPostRedisplay();//
+	
 }
 
 void reshape(GLsizei w, GLsizei h) {
