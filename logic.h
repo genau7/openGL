@@ -21,9 +21,12 @@ struct Segment {
 	void toSide(int increment);//
 	void move(int increment);
 	void getName(int index);
+	void draw(float r, float g, float b);
+	void drawBorder(float r, float g, float b);
 	int tile;
 	const float * vertices;
 	char name;
+
 };
 
 class Figure {
@@ -113,6 +116,7 @@ public:
 	void refresh();
 	void clearLine(int row);
 	void lowerFiguresAfterLinesDisappeared(int r);
+	void switchToNewFig();
 	int time;
 	int cycle;
 	Figure * currentFig;

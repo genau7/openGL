@@ -160,12 +160,15 @@ void display() {
 	Game &game = Game::getInstance();
 	if (game.gameOver){
 		printGameOver("Game Over", 0.5, 0.5);
+		
 
 	}
 	else {
 		if (game.timeForNewFigure){
-			fig = FigFactory::newFigure();
-			game.addFig(fig);
+			
+			//game.addFig(fig);
+			game.switchToNewFig();
+			
 		}
 		glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
 
@@ -190,8 +193,9 @@ void display() {
 		glLoadIdentity();
 		ButtonDraw(&MyButton);
 
+		game.refresh();
 		if (game.timeToMove()){
-			fig->down();
+			game.currentFig->down();
 		}
 
 	}
@@ -223,7 +227,7 @@ void reshape(GLsizei w, GLsizei h) {
 
 
 void arrowKeyPressed(int _key, int x, int y) {
-	static int c = 0;
+	fig = Game::getInstance().currentFig;
 	switch (_key)	{
 	case(100) ://left key	
 		fig->toSide(-1);

@@ -66,6 +66,46 @@ void Segment::toSide(int increment){
 	tile += increment;
 }
 
+void Segment::draw(float r, float g, float b){
+	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, Game::getInstance().myTex.getTextureID());
+	//glRotatef(angle, 0, 0, 1);
+	//glEnableClientState(GL_VERTEX_ARRAY);
+	//glTranslatef(dx, dy, 0);
+	//glTranslatef(-0.500005f, 1.0f, 0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);//
+			glColor3f(r, g, b);
+			glVertexPointer(2, GL_FLOAT, 0, vertices);
+			glTexCoordPointer(2, GL_FLOAT, 0, texi);
+			glDrawArrays(GL_QUADS, 0, 4);
+		
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	//glDisableClientState(GL_VERTEX_ARRAY);
+
+	glBindTexture(GL_TEXTURE_2D, NULL);
+
+	glLineWidth(3.0);
+	glColor3f(r*1.2, g*1.2, b*1.2);
+	glDrawArrays(GL_LINE_LOOP, 0, 4);
+	glDisableClientState(GL_VERTEX_ARRAY);//
+	glPopMatrix();
+}
+
+void Segment::drawBorder(float r, float g, float b){
+	glPushMatrix();//
+	glEnableClientState(GL_VERTEX_ARRAY);//
+	glLineWidth(3.0);
+	glColor3f(r*0.8, g*0.8, b*0.8);
+
+	int indices[] = {0,1,2,3,4,5 };
+	glVertexPointer(2, GL_FLOAT, 0, vertices);
+	glDrawElements(GL_LINE_STRIP, 3, GL_UNSIGNED_INT, indices);
+	glDisableClientState(GL_VERTEX_ARRAY);//
+	glPopMatrix();//
+
+}
 //-------------------------------------Figure--------------------------------
 
 Figure::Figure(){
@@ -77,6 +117,8 @@ Figure::Figure(){
 
 }
 int Figure::size(){
+	if (segments.empty())
+		return 0;
 	return segments.size();
 }
 
@@ -260,18 +302,10 @@ void Figure::draw(){
 		glTranslatef(dx, dy, 0);
 		glTranslatef(-0.500005f, 1.0f, 0);
 
-		for (int i = 0; i < size(); ++i){
-			glColor3f(r, g, b);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glVertexPointer(2, GL_FLOAT, 0, segments[i]->vertices);
-			glTexCoordPointer(2, GL_FLOAT, 0, texi);
-			glDrawArrays(GL_QUADS, 0, 4);
-			glLineWidth(1.0);
-			glColor3f(r*0.8, g*0.8, b*0.8);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glDrawArrays(GL_LINE_LOOP, 0, 4);
-
-		}
+		for (int i = 0; i < size(); ++i)	
+			segments[i]->draw(r,g,b);
+		for (int i = 0; i <size(); ++i)
+			segments[i]->drawBorder(r, g, b);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		
@@ -403,14 +437,27 @@ Game& Game::getInstance(){
 	return game;
 }
 
+void Game::switchToNewFig(){
+	nextFig = FigFactory::newFigure();
+	currentFig = nextFig;
+	figures.push_back(currentFig);
+	timeForNewFigure = false;
+	
+}
+
 Game::Game(){
 	gameState = 1; 
 	gameOver = false;
 	score = 0;
 	level = 1;
 	time = 0;
-	cycle = 160;
-	timeForNewFigure = true;
+	cycle = 150;
+	
+	//nextFig = FigFactory::newFigure();
+	//currentFig = nextFig;
+	switchToNewFig();
+
+	timeForNewFigure = false;
 	for (int i = 0; i < boardHeightTiles; ++i){
 		for (int j = 0; j < boardWidthTiles; ++j)
 			tiles[i][j] = 0;
