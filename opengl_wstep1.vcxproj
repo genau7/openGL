@@ -13,10 +13,14 @@
   <ItemGroup>
     <ClCompile Include="gkom.cpp" />
     <ClCompile Include="logic.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UIclasses.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logic.h" />
     <ClInclude Include="Segment.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="UIclasses.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FD6EC771-1B90-4F54-81AA-0199A9E43108}</ProjectGuid>
